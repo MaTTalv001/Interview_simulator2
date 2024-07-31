@@ -17,6 +17,8 @@ function App() {
         >
           Learn React
         </a>
+        <h1 className="bg-blue-600">DaisyUI</h1>
+        <h1 className="bg-green-600">DaisyUI</h1>
       </header>
     </div>
   );
