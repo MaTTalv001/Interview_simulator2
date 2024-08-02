@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
         provider = "github"
         token = generate_token_with_github_user_id(github_user_id, provider)
         
-        user_authentication = UserAuthentication.find_by(uid: google_user_id, provider: provider)
+        user_authentication = UserAuthentication.find_by(uid: github_user_id, provider: provider)
         
         if user_authentication
             Rails.logger.info("アプリユーザー登録されている")
@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
 
     private
 
-    def generate_token_with_google_user_id(google_user_id, provider)
+    def generate_token_with_github_user_id(github_user_id, provider)
         exp = Time.now.to_i + 24 * 3600
         payload = { github_user_id: github_user_id, provider: provider, exp: exp }
         hmac_secret = ENV['JWT_SECRET_KEY']
