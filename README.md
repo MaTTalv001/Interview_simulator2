@@ -57,3 +57,6 @@
 ## 画面遷移図
 https://www.figma.com/design/YuKTnRlGQcBJ6kirSLq0jt/interviewSimulator2?node-id=0-1&t=1mzIDhm9C7DO4xgd-1
 
+## ER図
+https://app.diagrams.net/#HMaTTalv001%2FInterview_simulator2%2Fmain%2Finterview_simulator2.drawio#%7B%22pageId%22%3A%228JCcPIpRCuSTkeoywtW6%22%7D
+
