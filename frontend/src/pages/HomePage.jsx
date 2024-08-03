@@ -37,6 +37,7 @@ export const HomePage = () => {
             <div className="block mb-3">
               <h2 className="text-2xl font-semibold">Github認証</h2>
             </div>
+            <p>{API_URL}</p>
             <div className="text-center">
               <button
                 className="bg-black text-white py-2.5 px-5 rounded my-4"
