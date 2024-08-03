@@ -14,7 +14,7 @@ export const HomePage = () => {
     const token = params.get("token");
 
     if (token) {
-      setAuth(token);
+      setToken(token);
       localStorage.setItem("auth", token);
       navigate(RoutePath.UsersNew.path);
     }
@@ -35,7 +35,7 @@ export const HomePage = () => {
         <div className="p-5">
           <section className="text-center">
             <div className="block mb-3">
-              <h2 className="text-2xl font-semibold">Google認証</h2>
+              <h2 className="text-2xl font-semibold">Github認証</h2>
             </div>
             <div className="text-center">
               <button
@@ -45,7 +45,7 @@ export const HomePage = () => {
                 <div className="flex items-center justify-center">
                   {/* GitHubアイコンを追加する場合は次の行のコメントを解除 */}
                   {/* <FaGithub className="text-xl" /> */}
-                  <span>Googleでログイン</span>
+                  <span>Githubでログイン</span>
                 </div>
               </button>
             </div>
