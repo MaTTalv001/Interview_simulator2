@@ -7,7 +7,7 @@ import { useRoutes } from "react-router-dom";
 
 export const AppRoutes = () => {
   const { currentUser } = useAuth(); // 認証状態をuseAuthフックから取得
-  const routes = currentUser ? PROTECTED_ROUTES : PUBLIC_ROUTES; // 認証状態に応じてルートを切り替え
+  const routes =  PROTECTED_ROUTES; // 認証状態に応じてルートを切り替え
   const element = useRoutes([...routes]);
 
   return <>{element}</>;

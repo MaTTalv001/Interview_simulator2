@@ -4,5 +4,9 @@ export const RoutePath = {
       path: "/",
       name: "ホーム",
     },
+    MyPage: {
+        path: "/MyPage",
+        name: "マイページ",
+      },
   };
   

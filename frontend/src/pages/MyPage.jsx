@@ -14,7 +14,7 @@ export const MyPage = () => {
     <div>
       <h1>My Profile</h1>
       <p>ID: {currentUser.id ?? "N/A"}</p>
-      <p>Nickname: {currentUser.nickname ?? "N/A"}</p>
+      <p className="bg-blue-600">Nickname: {currentUser.nickname ?? "N/A"}</p>
       <p>
         Account Created:{" "}
         {currentUser.created_at
