@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/app
+    env_file:
+      - ./frontend/.env.local
     command: yarn start
     ports:
       - "8000:3000"
