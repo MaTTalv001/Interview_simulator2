@@ -24,7 +24,7 @@ export const HomePage = () => {
     e.preventDefault();
     const form = document.createElement("form");
     form.method = "GET";
-    form.action = `${API_URL}/auth/github`; // Google認証のエンドポイント
+    form.action = `${API_URL}/auth/github`; // github認証のエンドポイント
     document.body.appendChild(form);
     form.submit();
   };
@@ -35,7 +35,7 @@ export const HomePage = () => {
         <div className="p-5">
           <section className="text-center">
             <div className="block mb-3">
-              <h2 className="text-2xl font-semibold">Github認証</h2>
+              <h2 className="text-2xl font-semibold">Githubアカウント認証</h2>
             </div>
             <p>{API_URL}</p>
             <div className="text-center">
