@@ -73,7 +73,7 @@ export const Header = memo(() => {
         </div>
         <div className="navbar-center">
           <Link to="/" className="btn btn-ghost normal-case text-xl md:text-2xl">
-            3日目に魔王がいる
+            インタービューシミュレータ
           </Link>
         </div>
         <div className="navbar-end">
