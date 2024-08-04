@@ -1,4 +1,5 @@
 class Api::V1::UsersController < ApplicationController
+  before_action :fetch_github_repositories, only: [:current]
     # GET /api/v1/users
     def index
 
@@ -30,11 +31,11 @@ class Api::V1::UsersController < ApplicationController
     # /api/v1/users/current
 
     def current
-        if @current_user
-        render json: { user: @current_user }
-        else
+      if @current_user
+        render json: @current_user, serializer: UserSerializer, github_repositories: @github_repositories
+      else
         render json: { error: 'Not Authorized' }, status: :unauthorized
-        end
+      end
     end
 
     def github_info
@@ -73,6 +74,14 @@ class Api::V1::UsersController < ApplicationController
 
     def user_params
         params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    end
+
+    def fetch_github_repositories
+      github_service = GithubService.new
+      @github_repositories = github_service.all_repository_names(@current_user.nickname)
+    rescue StandardError => e
+      Rails.logger.error "Error fetching GitHub repositories: #{e.message}"
+      @github_repositories = []
     end
 
     

@@ -22,4 +22,12 @@ class ApplicationController < ActionController::API
             render json: { errors: e.message }, status: :unauthorized
         end
     end
+
+    def fetch_github_repositories
+        github_service = GithubService.new
+        @github_repositories = github_service.recently_updated_repositories(@current_user.nickname)
+      rescue StandardError => e
+        Rails.logger.error "Error fetching GitHub repositories: #{e.message}"
+        @github_repositories = []
+      end
 end

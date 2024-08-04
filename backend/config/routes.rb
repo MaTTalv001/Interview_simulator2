@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   # ユーザー登録のルート(API)
   namespace :api do
     namespace :v1 do
+      post 'text_to_speech/generate', to: 'text_to_speech#generate'
       resources :users, only: [] do
         collection do
           get 'current'
