@@ -8,9 +8,12 @@ Rails.application.routes.draw do
   # ユーザー登録のルート(API)
   namespace :api do
     namespace :v1 do
-      # カレントユーザーの呼び出し
-      get 'users/current', to: 'users#current'
-      resources :users
+      resources :users, only: [] do
+        collection do
+          get 'current'
+          get 'github_info'
+        end
+      end
     end
   end
   get "up" => "rails/health#show", as: :rails_health_check
