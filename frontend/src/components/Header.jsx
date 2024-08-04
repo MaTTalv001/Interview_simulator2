@@ -6,10 +6,44 @@ import { memo, useEffect, useState } from "react";
 export const Header = memo(() => {
     const { setToken, logout, currentUser } = useAuth();
     const navigate = useNavigate();
+    const [currentTheme, setCurrentTheme] = useState("corporate"); // デフォルトテーマを設定
+    const themes =  [
+      "light",
+      "dark",
+      "bumblebee",
+      "emerald",
+      "corporate",
+      "synthwave",
+      "retro",
+      "valentine",
+      "fantasy",
+      "wireframe",
+      "luxury",
+      "dracula",
+      "cmyk",
+      "autumn",
+      "business",
+      "acid",
+      "coffee",
+      "nord",
+    ];
+    const handleThemeChange = (event) => {
+      const newTheme = event.target.value;
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme); // テーマをローカルストレージに保存
+      setCurrentTheme(newTheme);
+    };
   
     useEffect(() => {
       setToken(localStorage.getItem("authToken"));
-    }, [localStorage.getItem("authToken")]);
+      
+      // ローカルストレージからテーマを読み取って適用
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        setCurrentTheme(savedTheme);
+      }
+    }, [setToken]);
   
     const handleClickLogout = () => {
       logout(); // トークンをクリアしてログアウト処理
@@ -86,6 +120,28 @@ export const Header = memo(() => {
               </span>
             </div>
           )}
+        </div>
+        <div className="dropdown dropdown-end">
+          <div tabIndex={0} role="button" className="btn m-1">
+            theme
+            <svg width="12px" height="12px" className="ml-2 h-4 w-4 fill-current opacity-60 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+            <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
+          </div>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+            {themes.map(theme => (
+              <li key={theme}>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label={theme}
+                  value={theme}
+                  onChange={handleThemeChange}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </header>
     );
