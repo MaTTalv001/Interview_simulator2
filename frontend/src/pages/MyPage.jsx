@@ -202,12 +202,14 @@ export const MyPage = () => {
           <option key={index} value={repoName}>{repoName}</option>
         ))}
       </select>
+      {/*
       {readmeContent && (
         <div>
           <h2>README Preview:</h2>
           <pre className="mt-2 p-4 bg-gray-100 rounded">{readmeContent}</pre>
         </div>
       )}
+      */}
       <button onClick={startInterview} disabled={!readmeContent} className="mt-4 btn btn-primary">
         Start Interview
       </button>
