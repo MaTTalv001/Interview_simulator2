@@ -8,7 +8,11 @@ Rails.application.routes.draw do
   # ユーザー登録のルート(API)
   namespace :api do
     namespace :v1 do
+      get 'github/readme/:repo_name', to: 'github#readme'
+      post 'interview/start', to: 'interview#start'
+      post 'interview/continue', to: 'interview#continue'
       post 'text_to_speech/generate', to: 'text_to_speech#generate'
+      post 'speech_to_text', to: 'speech_to_text#transcribe'
       resources :users, only: [] do
         collection do
           get 'current'
