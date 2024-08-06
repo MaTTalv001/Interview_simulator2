@@ -8,5 +8,9 @@ export const RoutePath = {
         path: "/MyPage",
         name: "マイページ",
       },
+    Interview: {
+      path: "/Interview",
+      name: "インタビュー",
+    },
   };
   

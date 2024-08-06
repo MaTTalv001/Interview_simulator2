@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../providers/auth";
 import { API_URL } from "../config/settings";
 
-export const MyPage = () => {
+export const Interview = () => {
   const { currentUser, token } = useAuth();
   const [selectedRepo, setSelectedRepo] = useState("");
   const [interviewStarted, setInterviewStarted] = useState(false);
@@ -220,4 +220,4 @@ export const MyPage = () => {
   );
 };
 
-export default MyPage;
+export default Interview;
