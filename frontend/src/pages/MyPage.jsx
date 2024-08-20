@@ -19,6 +19,10 @@ export const MyPage = () => {
   const [isLoadingInterview, setIsLoadingInterview] = useState(false);  // 追加
   const videoRef = useRef(null);
   const audioRef = useRef(null);
+  const [isInterviewEnded, setIsInterviewEnded] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackAudio, setFeedbackAudio] = useState(null);
+  const [isFeedbackReady, setIsFeedbackReady] = useState(false);
 
   useEffect(() => {
     if (currentUser !== undefined) {
@@ -103,6 +107,37 @@ export const MyPage = () => {
     }
   }, [messages]);
 
+  const endInterview = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/interview/end`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ messages })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to end interview');
+      }
+
+      const data = await response.json();
+      setFeedbackText(data.text);
+      setFeedbackAudio(data.audio);
+      setIsInterviewEnded(true);
+      setIsFeedbackReady(true);
+    } catch (error) {
+      console.error("Error ending interview:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isFeedbackReady && feedbackAudio) {
+      playAudioWithVideo(feedbackAudio);
+    }
+  }, [isFeedbackReady, feedbackAudio]);
+
   
 
   const playAudioWithVideo = (audioUrl) => {
@@ -112,6 +147,8 @@ export const MyPage = () => {
     if (videoPlayer && audioPlayer) {
       audioPlayer.src = audioUrl;
       videoPlayer.muted = true;
+      videoPlayer.loop = true;  // ビデオをループさせる
+
 
       audioPlayer.oncanplaythrough = () => {
         videoPlayer.currentTime = 0;
@@ -121,6 +158,11 @@ export const MyPage = () => {
 
       audioPlayer.onended = () => {
         videoPlayer.pause();
+      };
+      // ビデオが終了したら最初から再生を開始
+      videoPlayer.onended = () => {
+        videoPlayer.currentTime = 0;
+        videoPlayer.play().catch(e => console.error("Error replaying video:", e));
       };
     } else {
       console.error("Video or audio player is not ready.");
@@ -245,7 +287,7 @@ export const MyPage = () => {
             </>
           )}
         </>
-      ) : (
+      ) : !isInterviewEnded ? (
         <>
           <div className="mt-4">
             <h2>Interview Question:</h2>
@@ -260,6 +302,7 @@ export const MyPage = () => {
               height="360"
               muted
               playsInline
+              loop
               className="mt-4"
             >
               <source src="/movie/interview.mp4" type="video/mp4" />
@@ -290,7 +333,35 @@ export const MyPage = () => {
               </>
             )}
           </div>
+  
+          <button onClick={endInterview} className="mt-4 btn btn-warning">
+            End Interview
+          </button>
         </>
+      ) : (
+        <div className="mt-4">
+          <h2>Interview Feedback:</h2>
+          <p>{feedbackText}</p>
+          <audio 
+            ref={audioRef} 
+            style={{display: 'none'}}
+            onCanPlayThrough={() => setIsFeedbackReady(true)}
+          >
+            <source src={feedbackAudio} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <video 
+            ref={videoRef}
+            width="640"
+            height="360"
+            muted
+            playsInline
+            className="mt-4"
+          >
+            <source src="/movie/interview.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
       )}
     </div>
   );

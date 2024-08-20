@@ -36,4 +36,22 @@ class Api::V1::InterviewController < ApplicationController
   
       render json: { text: chatgpt_response, audio: audio_data, messages: messages }
     end
+
+    def end_interview
+      messages = params[:messages]
+      chatgpt_service = ChatgptService.new
+      text_to_speech_service = TextToSpeechService.new
+  
+      feedback_prompt = "あなたはエンジニア面接担当者であり、同時にキャリアコンサルタントでもあります。以下の面接の会話ログを分析し、受験者(user)に対し、口語で、採用面接としてのフィードバックを行ってください(マークダウン表記などは不要です。)。強み、改善点、全体的な印象を含め、受験者のためになるようなアドバイスをお願いします"
+  
+      feedback_messages = [
+        { role: 'system', content: feedback_prompt },
+        { role: 'user', content: messages.map { |m| "#{m[:role]}: #{m[:content]}" }.join("\n") }
+      ]
+  
+      feedback_response = chatgpt_service.conversation_chat(feedback_messages)
+      audio_data = text_to_speech_service.generate_speech(feedback_response)
+  
+      render json: { text: feedback_response, audio: audio_data }
+    end
   end
