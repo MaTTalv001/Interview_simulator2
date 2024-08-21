@@ -1,368 +1,127 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { useAuth } from "../providers/auth";
+import AvatarModal from '../components/AvatarModal';
 import { API_URL } from "../config/settings";
-import { generalQuestions } from "../utils/generalQuestions"; // 汎用質問をインポート
 
 export const MyPage = () => {
-  const { currentUser, token } = useAuth();
-  const [selectedRepo, setSelectedRepo] = useState("");
-  const [interviewStarted, setInterviewStarted] = useState(false);
-  const [interviewText, setInterviewText] = useState("");
-  const [audioSrc, setAudioSrc] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const [messages, setMessages] = useState([]);
+  const { currentUser, setCurrentUser, token } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [audioKey, setAudioKey] = useState(0);
-  const [isLoadingInterview, setIsLoadingInterview] = useState(false);  // 追加
-  const videoRef = useRef(null);
-  const audioRef = useRef(null);
-  const [isInterviewEnded, setIsInterviewEnded] = useState(false);
-  const [feedbackText, setFeedbackText] = useState("");
-  const [feedbackAudio, setFeedbackAudio] = useState(null);
-  const [isFeedbackReady, setIsFeedbackReady] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [avatars, setAvatars] = useState([]);
 
   useEffect(() => {
     if (currentUser !== undefined) {
       setIsLoading(false);
+      fetchAvatars();
     }
   }, [currentUser]);
 
-  const fetchReadme = async (repoName) => {
+  const fetchAvatars = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/github/readme/${repoName}`, {
+      const response = await fetch(`${API_URL}/api/v1/users/avatars`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch README');
+        throw new Error('Failed to fetch avatars');
       }
 
       const data = await response.json();
-      return data.readme;
+      setAvatars(data);
     } catch (error) {
-      console.error("Error fetching README:", error);
-      return "";
+      console.error('Error fetching avatars:', error);
     }
   };
 
-  const startInterviewWithRepo = async () => {
-    setIsLoadingInterview(true);  // ローディング開始
-    const readme = await fetchReadme(selectedRepo);
-    await startInterview(readme);
-    setIsLoadingInterview(false); // ローディング終了
+  const handleAvatarClick = () => {
+    setIsModalOpen(true);
   };
 
-  const startGeneralInterview = async () => {
-    setIsLoadingInterview(true);  // ローディング開始
-    const randomQuestion = generalQuestions[Math.floor(Math.random() * generalQuestions.length)];
-    await startInterview(randomQuestion);
-    setIsLoadingInterview(false); // ローディング終了
-  };
-
-  const startInterview = async (prompt) => {
-    setIsLoadingInterview(true);
+  const handleAvatarSelect = async (avatarId) => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/interview/start`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/v1/users/update_avatar`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ readme: prompt })
+        body: JSON.stringify({ avatar_id: avatarId })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start interview');
+        throw new Error('Failed to update avatar');
       }
 
       const data = await response.json();
-      setInterviewText(data.text);
-      setAudioSrc(data.audio);
-      setMessages(data.messages);
-      setInterviewStarted(true);
-      setAudioKey(prevKey => prevKey + 1);
+      setCurrentUser(prevUser => ({
+        ...prevUser,
+        avatar: data.avatar
+      }));
+      setIsModalOpen(false);
     } catch (error) {
-      console.error("Error starting interview:", error);
-    } finally {
-      setIsLoadingInterview(false);
-    }
-  };
-
-  // audioSrcが変更されたら再生を開始する
-  useEffect(() => {
-    if (audioSrc) {
-      playAudioWithVideo(audioSrc);
-    }
-  }, [audioSrc]);
-
-  useEffect(() => {
-    if (messages) {
-      console.log(messages);
-      console.log(interviewText);
-    }
-  }, [messages]);
-
-  const endInterview = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/v1/interview/end`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ messages })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to end interview');
-      }
-
-      const data = await response.json();
-      setFeedbackText(data.text);
-      setFeedbackAudio(data.audio);
-      setIsInterviewEnded(true);
-      setIsFeedbackReady(true);
-    } catch (error) {
-      console.error("Error ending interview:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (isFeedbackReady && feedbackAudio) {
-      playAudioWithVideo(feedbackAudio);
-    }
-  }, [isFeedbackReady, feedbackAudio]);
-
-  
-
-  const playAudioWithVideo = (audioUrl) => {
-    const videoPlayer = videoRef.current;
-    const audioPlayer = audioRef.current;
-
-    if (videoPlayer && audioPlayer) {
-      audioPlayer.src = audioUrl;
-      videoPlayer.muted = true;
-      videoPlayer.loop = true;  // ビデオをループさせる
-
-
-      audioPlayer.oncanplaythrough = () => {
-        videoPlayer.currentTime = 0;
-        videoPlayer.play().catch(e => console.error("Error playing video:", e));
-        audioPlayer.play().catch(e => console.error("Error playing audio:", e));
-      };
-
-      audioPlayer.onended = () => {
-        videoPlayer.pause();
-      };
-      // ビデオが終了したら最初から再生を開始
-      videoPlayer.onended = () => {
-        videoPlayer.currentTime = 0;
-        videoPlayer.play().catch(e => console.error("Error replaying video:", e));
-      };
-    } else {
-      console.error("Video or audio player is not ready.");
-    }
-  };
-
-  const continueInterview = async (userResponse) => {
-    try {
-      const response = await fetch(`${API_URL}/api/v1/interview/continue`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ messages: messages, user_response: userResponse })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to continue interview');
-      }
-
-      const data = await response.json();
-      setInterviewText(data.text);
-      setAudioSrc(data.audio);
-      setMessages(data.messages);
-      setAudioKey(prevKey => prevKey + 1);
-    } catch (error) {
-      console.error("Error continuing interview:", error);
-    }
-  };
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setAudioBlob(audioBlob);
-        audioChunksRef.current = [];
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error starting recording:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const handleSendAudioToBackend = async () => {
-    if (!audioBlob) return;
-
-    try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recorded_audio.wav');
-
-      const response = await fetch(`${API_URL}/api/v1/speech_to_text`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send audio to backend');
-      }
-
-      const data = await response.json();
-      await continueInterview(data.transcription);
-      setAudioBlob(null);
-      setAudioKey(prevKey => prevKey + 1);
-    } catch (error) {
-      console.error("Error sending audio to backend:", error);
+      console.error('Error updating avatar:', error);
     }
   };
 
   if (isLoading) {
-    return <div>Loading user data...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-bars loading-lg"></span>
+      </div>
+    );
   }
 
   if (!currentUser) {
-    return <div>Please log in to access this page.</div>;
+    return <div className="text-center">Please log in to access this page.</div>;
   }
 
   return (
-    <div className="container max-w-6xl mx-auto py-5">
-      <h1>Interview Simulation</h1>
-      {!interviewStarted ? (
-        <>
-          <select onChange={(e) => setSelectedRepo(e.target.value)} value={selectedRepo}>
-            <option value="">Select a repository</option>
-            {currentUser.github_repositories && currentUser.github_repositories.map((repoName, index) => (
-              <option key={index} value={repoName}>{repoName}</option>
-            ))}
-          </select>
-          {isLoadingInterview ? (
-            <div className="mt-4">
-              <span className="loading loading-bars loading-lg"></span>
-            </div>
-          ) : (
-            <>
-              <button onClick={startInterviewWithRepo} disabled={!selectedRepo} className="mt-4 btn btn-primary">
-                Start Interview with Selected Repo
-              </button>
-              <button onClick={startGeneralInterview} className="mt-4 btn btn-secondary">
-                Start General Interview
-              </button>
-            </>
-          )}
-        </>
-      ) : !isInterviewEnded ? (
-        <>
-          <div className="mt-4">
-            <h2>Interview Question:</h2>
-            <p>{interviewText}</p>
-            <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
-              <source src={audioSrc} type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-            <video 
-              ref={videoRef}
-              width="640"
-              height="360"
-              muted
-              playsInline
-              loop
-              className="mt-4"
-            >
-              <source src="/movie/interview.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-  
-          <div className="mt-4">
-            <button
-              onClick={isRecording ? stopRecording : startRecording}
-              className={`btn ${isRecording ? 'btn-error' : 'btn-primary'}`}
-            >
-              {isRecording ? 'Stop Recording' : 'Start Recording'}
-            </button>
-            
-            {audioBlob && (
-              <>
-                <button
-                  onClick={handleSendAudioToBackend}
-                  className="btn btn-secondary ml-2"
+    <div className="container mx-auto p-4">
+      <div className="card lg:card-side bg-base-100 shadow-xl">
+        <figure onClick={handleAvatarClick} className="cursor-pointer">
+          <img 
+            src={currentUser.avatar.avatar_url} 
+            alt="Avatar" 
+            className="w-64 h-64 rounded-full object-cover"
+          />
+        </figure>
+        <div className="card-body">
+          <h2 className="card-title text-3xl">{currentUser.nickname}</h2>
+          <div className="badge badge-primary">ID: {currentUser.id}</div>
+          <a 
+            href={`https://github.com/${currentUser.nickname}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn btn-primary mt-4"
+          >
+            GitHub Profile
+          </a>
+          <div className="mt-6">
+            <h3 className="text-xl font-bold mb-2">Repositories</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {currentUser.github_repositories.map((repo, index) => (
+                <a 
+                  key={index} 
+                  href={`https://github.com/${currentUser.nickname}/${repo}`}
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn btn-outline btn-sm"
                 >
-                  Send Response
-                </button>
-                <audio key={`user-${audioKey}`} controls className="mt-4">
-                  <source src={URL.createObjectURL(audioBlob)} type="audio/wav" />
-                  Your browser does not support the audio element.
-                </audio>
-              </>
-            )}
+                  {repo}
+                </a>
+              ))}
+            </div>
           </div>
-  
-          <button onClick={endInterview} className="mt-4 btn btn-warning">
-            End Interview
-          </button>
-        </>
-      ) : (
-        <div className="mt-4">
-          <h2>Interview Feedback:</h2>
-          <p>{feedbackText}</p>
-          <audio 
-            ref={audioRef} 
-            style={{display: 'none'}}
-            onCanPlayThrough={() => setIsFeedbackReady(true)}
-          >
-            <source src={feedbackAudio} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-          <video 
-            ref={videoRef}
-            width="640"
-            height="360"
-            muted
-            playsInline
-            className="mt-4"
-          >
-            <source src="/movie/interview.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
         </div>
-      )}
+      </div>
+      <AvatarModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        avatars={avatars}
+        onSelect={handleAvatarSelect}
+      />
     </div>
   );
 };

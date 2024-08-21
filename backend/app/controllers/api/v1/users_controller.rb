@@ -70,6 +70,20 @@ class Api::V1::UsersController < ApplicationController
         render json: { error: "GitHub API authentication failed" }, status: :unauthorized
       end
 
+
+    def avatars
+      @avatars = Avatar.all
+      render json: @avatars
+    end
+    
+    def update_avatar
+      if @current_user.update(avatar_id: params[:avatar_id])
+        render json: @current_user, serializer: UserSerializer
+      else
+        render json: { error: 'Failed to update avatar' }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def user_params
@@ -83,6 +97,8 @@ class Api::V1::UsersController < ApplicationController
       Rails.logger.error "Error fetching GitHub repositories: #{e.message}"
       @github_repositories = []
     end
+
+
 
     
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_03_040058) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_21_103943) do
   create_table "avatars", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "avatar_url", null: false
     t.datetime "created_at", null: false
@@ -75,6 +75,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_03_040058) do
     t.string "nickname", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "avatar_id"
+    t.index ["avatar_id"], name: "index_users_on_avatar_id"
   end
 
   create_table "users_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -90,6 +92,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_03_040058) do
   add_foreign_key "interview_logs", "company_types", column: "company_id"
   add_foreign_key "interview_logs", "users"
   add_foreign_key "user_authentications", "users"
+  add_foreign_key "users", "avatars"
   add_foreign_key "users_comments", "comments"
   add_foreign_key "users_comments", "users"
 end

@@ -18,6 +18,8 @@ Rails.application.routes.draw do
         collection do
           get 'current'
           get 'github_info'
+          get 'avatars'
+          patch 'update_avatar'
         end
       end
     end

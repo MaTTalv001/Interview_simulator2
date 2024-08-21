@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../providers/auth";
 import { API_URL } from "../config/settings";
+import { generalQuestions } from "../utils/generalQuestions"; // 汎用質問をインポート
 
 export const Interview = () => {
   const { currentUser, token } = useAuth();
@@ -15,10 +16,18 @@ export const Interview = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [audioKey, setAudioKey] = useState(0);
+  const [isLoadingInterview, setIsLoadingInterview] = useState(false);  // 追加
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+  const [isInterviewEnded, setIsInterviewEnded] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackAudio, setFeedbackAudio] = useState(null);
+  const [isFeedbackReady, setIsFeedbackReady] = useState(false);
 
   useEffect(() => {
     if (currentUser !== undefined) {
       setIsLoading(false);
+      console.log(currentUser);
     }
   }, [currentUser]);
 
@@ -35,7 +44,6 @@ export const Interview = () => {
       }
 
       const data = await response.json();
-      console.log("README Content:", data.readme);
       return data.readme;
     } catch (error) {
       console.error("Error fetching README:", error);
@@ -43,8 +51,22 @@ export const Interview = () => {
     }
   };
 
-  const startInterview = async () => {
+  const startInterviewWithRepo = async () => {
+    setIsLoadingInterview(true);  // ローディング開始
     const readme = await fetchReadme(selectedRepo);
+    await startInterview(readme);
+    setIsLoadingInterview(false); // ローディング終了
+  };
+
+  const startGeneralInterview = async () => {
+    setIsLoadingInterview(true);  // ローディング開始
+    const randomQuestion = generalQuestions[Math.floor(Math.random() * generalQuestions.length)];
+    await startInterview(randomQuestion);
+    setIsLoadingInterview(false); // ローディング終了
+  };
+
+  const startInterview = async (prompt) => {
+    setIsLoadingInterview(true);
     try {
       const response = await fetch(`${API_URL}/api/v1/interview/start`, {
         method: 'POST',
@@ -52,7 +74,7 @@ export const Interview = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ readme: readme })
+        body: JSON.stringify({ readme: prompt })
       });
 
       if (!response.ok) {
@@ -67,6 +89,84 @@ export const Interview = () => {
       setAudioKey(prevKey => prevKey + 1);
     } catch (error) {
       console.error("Error starting interview:", error);
+    } finally {
+      setIsLoadingInterview(false);
+    }
+  };
+
+  // audioSrcが変更されたら再生を開始する
+  useEffect(() => {
+    if (audioSrc) {
+      playAudioWithVideo(audioSrc);
+    }
+  }, [audioSrc]);
+
+  useEffect(() => {
+    if (messages) {
+      console.log(messages);
+      console.log(interviewText);
+    }
+  }, [messages]);
+
+  const endInterview = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/interview/end`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ messages })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to end interview');
+      }
+
+      const data = await response.json();
+      setFeedbackText(data.text);
+      setFeedbackAudio(data.audio);
+      setIsInterviewEnded(true);
+      setIsFeedbackReady(true);
+    } catch (error) {
+      console.error("Error ending interview:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isFeedbackReady && feedbackAudio) {
+      playAudioWithVideo(feedbackAudio);
+    }
+  }, [isFeedbackReady, feedbackAudio]);
+
+  
+
+  const playAudioWithVideo = (audioUrl) => {
+    const videoPlayer = videoRef.current;
+    const audioPlayer = audioRef.current;
+
+    if (videoPlayer && audioPlayer) {
+      audioPlayer.src = audioUrl;
+      videoPlayer.muted = true;
+      videoPlayer.loop = true;  // ビデオをループさせる
+
+
+      audioPlayer.oncanplaythrough = () => {
+        videoPlayer.currentTime = 0;
+        videoPlayer.play().catch(e => console.error("Error playing video:", e));
+        audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+      };
+
+      audioPlayer.onended = () => {
+        videoPlayer.pause();
+      };
+      // ビデオが終了したら最初から再生を開始
+      videoPlayer.onended = () => {
+        videoPlayer.currentTime = 0;
+        videoPlayer.play().catch(e => console.error("Error replaying video:", e));
+      };
+    } else {
+      console.error("Video or audio player is not ready.");
     }
   };
 
@@ -90,7 +190,6 @@ export const Interview = () => {
       setAudioSrc(data.audio);
       setMessages(data.messages);
       setAudioKey(prevKey => prevKey + 1);
-      console.log(data.messages);
     } catch (error) {
       console.error("Error continuing interview:", error);
     }
@@ -174,23 +273,44 @@ export const Interview = () => {
               <option key={index} value={repoName}>{repoName}</option>
             ))}
           </select>
-          <button onClick={startInterview} disabled={!selectedRepo} className="mt-4 btn btn-primary">
-            Start Interview
-          </button>
+          {isLoadingInterview ? (
+            <div className="mt-4">
+              <span className="loading loading-bars loading-lg"></span>
+            </div>
+          ) : (
+            <>
+              <button onClick={startInterviewWithRepo} disabled={!selectedRepo} className="mt-4 btn btn-primary">
+                Start Interview with Selected Repo
+              </button>
+              <button onClick={startGeneralInterview} className="mt-4 btn btn-secondary">
+                Start General Interview
+              </button>
+            </>
+          )}
         </>
-      ) : (
+      ) : !isInterviewEnded ? (
         <>
           <div className="mt-4">
             <h2>Interview Question:</h2>
             <p>{interviewText}</p>
-            {audioSrc && (
-              <audio key={`ai-${audioKey}`} controls className="mt-2">
-                <source src={audioSrc} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-            )}
+            <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
+              <source src={audioSrc} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            <video 
+              ref={videoRef}
+              width="640"
+              height="360"
+              muted
+              playsInline
+              loop
+              className="mt-4"
+            >
+              <source src="/movie/interview.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
-
+  
           <div className="mt-4">
             <button
               onClick={isRecording ? stopRecording : startRecording}
@@ -214,7 +334,35 @@ export const Interview = () => {
               </>
             )}
           </div>
+  
+          <button onClick={endInterview} className="mt-4 btn btn-warning">
+            End Interview
+          </button>
         </>
+      ) : (
+        <div className="mt-4">
+          <h2>Interview Feedback:</h2>
+          <p>{feedbackText}</p>
+          <audio 
+            ref={audioRef} 
+            style={{display: 'none'}}
+            onCanPlayThrough={() => setIsFeedbackReady(true)}
+          >
+            <source src={feedbackAudio} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <video 
+            ref={videoRef}
+            width="640"
+            height="360"
+            muted
+            playsInline
+            className="mt-4"
+          >
+            <source src="/movie/interview.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
       )}
     </div>
   );
