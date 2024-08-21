@@ -14,15 +14,20 @@ Rails.application.routes.draw do
       post 'text_to_speech/generate', to: 'text_to_speech#generate'
       post 'speech_to_text', to: 'speech_to_text#transcribe'
       post 'interview/end', to: 'interview#end_interview'
+      
       resources :users, only: [] do
         collection do
           get 'current'
           get 'github_info'
           get 'avatars'
           patch 'update_avatar'
+          patch 'update_experience'  # 新しく追加
         end
       end
+      
+      resources :experiences, only: [:index]  # 新しく追加
     end
   end
+  
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -84,6 +84,14 @@ class Api::V1::UsersController < ApplicationController
       end
     end
 
+    def update_experience
+      if @current_user.update(experience_id: params[:experience_id])
+        render json: @current_user, serializer: UserSerializer
+      else
+        render json: { error: 'Failed to update experience' }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def user_params

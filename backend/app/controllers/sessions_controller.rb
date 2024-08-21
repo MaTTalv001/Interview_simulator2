@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
         else
             Rails.logger.info("まだアプリユーザー登録されていない")
             # 仮のユーザーを作成
-            user = User.create(nickname: github_username)
+            user = User.create(nickname: github_username, avatar_id:1, experience_id:1)
             Rails.logger.info(user)
             UserAuthentication.create(user_id: user.id, uid: github_user_id, provider: provider)
             redirect_to "#{frontend_url}/MyPage?token=#{token}", allow_other_host: true

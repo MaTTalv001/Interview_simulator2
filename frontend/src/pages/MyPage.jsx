@@ -8,11 +8,14 @@ export const MyPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [avatars, setAvatars] = useState([]);
+  const [experiences, setExperiences] = useState([]);
 
   useEffect(() => {
     if (currentUser !== undefined) {
       setIsLoading(false);
       fetchAvatars();
+      fetchExperiences();
+      console.log(currentUser);
     }
   }, [currentUser]);
 
@@ -34,6 +37,30 @@ export const MyPage = () => {
       console.error('Error fetching avatars:', error);
     }
   };
+
+  useEffect(() => {
+    fetchExperiences();
+  }, []);
+  
+  const fetchExperiences = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/experiences`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch experiences');
+      }
+  
+      const data = await response.json();
+      setExperiences(data);
+    } catch (error) {
+      console.error('Error fetching experiences:', error);
+    }
+  };
+
 
   const handleAvatarClick = () => {
     setIsModalOpen(true);
@@ -65,6 +92,40 @@ export const MyPage = () => {
     }
   };
 
+  const handleExperienceChange = async (event) => {
+    const experienceId = event.target.value;
+    try {
+      const response = await fetch(`${API_URL}/api/v1/users/update_experience`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ experience_id: experienceId })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update experience');
+      }
+  
+      const updatedUser = await response.json();
+      setCurrentUser(prevUser => ({
+        ...prevUser,
+        experience: updatedUser.experience
+      }));
+    } catch (error) {
+      console.error('Error updating experience:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-bars loading-lg"></span>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -90,6 +151,27 @@ export const MyPage = () => {
         <div className="card-body">
           <h2 className="card-title text-3xl">{currentUser.nickname}</h2>
           <div className="badge badge-primary">ID: {currentUser.id}</div>
+          <div className="mt-4">
+            <label htmlFor="experience" className="block text-sm font-medium text-gray-700">
+              経験レベル
+            </label>
+            <select
+              id="experience"
+              value={currentUser.experience?.id || ''}
+              onChange={handleExperienceChange}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              {experiences && experiences.length > 0 ? (
+  experiences.map((exp) => (
+    <option key={exp.id} value={exp.id}>
+      {exp.experience}
+    </option>
+  ))
+) : (
+  <option value="">Loading experiences...</option>
+)}
+            </select>
+          </div>
           <a 
             href={`https://github.com/${currentUser.nickname}`} 
             target="_blank" 
