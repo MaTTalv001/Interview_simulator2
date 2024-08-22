@@ -12,5 +12,9 @@ export const RoutePath = {
       path: "/Interview",
       name: "インタビュー",
     },
+    Logs: {
+      path: "/Logs",
+      name: "面接記録",
+    },
   };
   

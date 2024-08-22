@@ -5,6 +5,7 @@ import { RoutePath } from "../config/route_path";
 import { HomePage } from "../pages/HomePage";
 import { MyPage } from "../pages/MyPage";
 import { Interview } from "../pages/Interview";
+import { Logs } from "../pages/Logs";
 
 const App = () => {
   return (
@@ -31,4 +32,9 @@ export const PROTECTED_ROUTES = [
     element: <App />,
     children: [{ path: RoutePath.Interview.path, element: <Interview /> }],
   },
+  {
+    path: RoutePath.Logs.path,
+    element: <App />,
+    children: [{ path: RoutePath.Logs.path, element: <Logs /> }],
+  }
 ];

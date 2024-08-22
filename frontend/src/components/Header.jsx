@@ -52,8 +52,8 @@ export const Header = memo(() => {
     };
   
     return (
-      <header className="navbar   bg-base-300 relative z-50">
-        <div className="navbar-start">
+      <header className="navbar bg-base-300 relative z-50 flex justify-between items-center">
+  <div className="navbar-start absolute left-0">
           <div className="dropdown">
             <label tabIndex={0} className="btn btn-ghost">
               <svg
@@ -105,13 +105,13 @@ export const Header = memo(() => {
             </ul>
           </div>
         </div>
-        <div className="navbar-center">
-          <Link to="/" className="btn btn-ghost normal-case text-xl md:text-2xl">
-            インタービューシミュレータ
+        <div className="navbar-center flex-grow flex justify-center">
+        <Link to="/" className="btn btn-ghost normal-case text-center text-xl md:text-2xl">
+          エンジニア面接Sim
           </Link>
         </div>
-        <div className="navbar-end">
-          {currentUser && (
+        <div className="navbar-end absolute right-0">
+          {/* {currentUser && (
             <div className="flex items-center">
               <span className="text-sm md:text-md mr-2 stat-value">
               </span>
@@ -119,7 +119,7 @@ export const Header = memo(() => {
                 {currentUser.nickname}
               </span>
             </div>
-          )}
+          )} */}
         </div>
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn m-1">
