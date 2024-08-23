@@ -27,6 +27,7 @@ export const Interview = () => {
   const [isFeedbackReady, setIsFeedbackReady] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false);
   const [isPreparingFeedback, setIsPreparingFeedback] = useState(false);
+  
 
   useEffect(() => {
     if (audioSrc) {
@@ -104,12 +105,23 @@ export const Interview = () => {
     const videoPlayer = videoRef.current;
     const audioPlayer = audioRef.current;
     if (videoPlayer && audioPlayer) {
-      const playPromise = videoPlayer.play();
-      if (playPromise !== undefined) {
-        playPromise.then(_ => {
-          audioPlayer.play().catch(e => console.error("Error playing audio:", e));
-        }).catch(e => console.error("Error playing video:", e));
-      }
+      audioPlayer.src = audioUrl;
+      videoPlayer.muted = true;
+      videoPlayer.loop = true;
+      audioPlayer.oncanplaythrough = () => {
+        videoPlayer.currentTime = 0;
+        videoPlayer.play().catch(e => console.error("Error playing video:", e));
+        audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+      };
+      audioPlayer.onended = () => {
+        videoPlayer.pause();
+      };
+      videoPlayer.onended = () => {
+        videoPlayer.currentTime = 0;
+        videoPlayer.play().catch(e => console.error("Error replaying video:", e));
+      };
+    } else {
+      console.error("Video or audio player is not ready.");
     }
   };
 
