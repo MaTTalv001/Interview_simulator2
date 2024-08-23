@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaMicrophone, FaPaperPlane, FaPlay, FaStop } from 'react-icons/fa';
 
-export const Logs = () => {
+const Logs = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -9,24 +9,37 @@ export const Logs = () => {
   const audioChunksRef = useRef([]);
   const audioPlayerRef = useRef(null);
 
+  const requestMicrophonePermission = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("マイクの権限が許可されました");
+    } catch (error) {
+      console.error("マイクの権限が拒否されました:", error);
+    }
+  };
+
   const startRecording = async () => {
+    await requestMicrophonePermission();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
+          console.log("音声データを受信:", event.data.size, "バイト");
         }
       };
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp4' });
         setAudioBlob(audioBlob);
         audioChunksRef.current = [];
+        console.log("録音完了。Blobサイズ:", audioBlob.size, "バイト");
       };
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      console.log("録音開始");
     } catch (error) {
-      console.error("Error starting recording:", error);
+      console.error("録音開始エラー:", error);
     }
   };
 
@@ -34,6 +47,7 @@ export const Logs = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      console.log("録音停止");
     }
   };
 
@@ -41,8 +55,12 @@ export const Logs = () => {
     if (audioBlob) {
       const audioUrl = URL.createObjectURL(audioBlob);
       audioPlayerRef.current.src = audioUrl;
-      audioPlayerRef.current.play();
-      setIsPlaying(true);
+      audioPlayerRef.current.play().then(() => {
+        console.log("再生開始");
+        setIsPlaying(true);
+      }).catch(error => {
+        console.error("再生エラー:", error);
+      });
     }
   };
 
@@ -51,6 +69,7 @@ export const Logs = () => {
       audioPlayerRef.current.pause();
       audioPlayerRef.current.currentTime = 0;
       setIsPlaying(false);
+      console.log("再生停止");
     }
   };
 
@@ -101,6 +120,7 @@ export const Logs = () => {
       {audioBlob && (
         <div className="mt-4">
           <p>録音が完了しました。上のボタンから再生または送信できます。</p>
+          <p>録音サイズ: {audioBlob.size} バイト</p>
         </div>
       )}
     </div>
