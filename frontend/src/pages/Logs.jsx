@@ -26,7 +26,7 @@ const Logs = () => {
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
-          console.log("音声データを受信:", event.data.size, "バイト");
+          console.log("音声データを受信:", event.data.size, "バイト ");
         }
       };
       mediaRecorderRef.current.onstop = () => {
