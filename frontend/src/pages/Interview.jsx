@@ -29,17 +29,22 @@ export const Interview = () => {
   const [isPreparingFeedback, setIsPreparingFeedback] = useState(false);
   const [isMediaReady, setIsMediaReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  
 
   useEffect(() => {
     if (audioSrc) {
-      playAudioWithVideo(audioSrc);
+      const audioPlayer = audioRef.current;
+      if (audioPlayer) {
+        audioPlayer.src = audioSrc;
+        audioPlayer.load();
+        setIsMediaReady(true);
+        setIsPlaying(false);
+      }
     }
   }, [audioSrc]);
 
   useEffect(() => {
     if (isFeedbackReady && feedbackAudio) {
-      playAudioWithVideo(feedbackAudio);
+      playAudioWithVideo();
     }
   }, [isFeedbackReady, feedbackAudio]);
 
@@ -108,14 +113,34 @@ export const Interview = () => {
     const audioPlayer = audioRef.current;
     if (videoPlayer && audioPlayer) {
       videoPlayer.muted = true;
-      videoPlayer.loop = true;
-      
+      videoPlayer.loop = false;
+
       const playMedia = () => {
-        videoPlayer.play().catch(e => console.error("Error playing video:", e));
-        audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+        videoPlayer.currentTime = 0;
+        audioPlayer.currentTime = 0;
+        
+        videoPlayer.play().then(() => {
+          setTimeout(() => {
+            audioPlayer.play().catch(e => {
+              console.error("Error playing audio:", e);
+              setIsPlaying(false);
+              setIsMediaReady(true);
+            });
+          }, 1000);
+        }).catch(e => console.error("Error playing video:", e));
+        
         setIsPlaying(true);
       };
-  
+
+      const stopMedia = () => {
+        videoPlayer.pause();
+        audioPlayer.pause();
+        setIsPlaying(false);
+        setIsMediaReady(true);
+      };
+
+      audioPlayer.onended = stopMedia;
+
       if (videoPlayer.readyState >= 2 && audioPlayer.readyState >= 2) {
         playMedia();
       } else {
@@ -126,18 +151,6 @@ export const Interview = () => {
       console.error("Video or audio player is not ready.");
     }
   };
-
-  useEffect(() => {
-    if (audioSrc) {
-      const audioPlayer = audioRef.current;
-      if (audioPlayer) {
-        audioPlayer.src = audioSrc;
-        audioPlayer.load();
-        setIsMediaReady(true);
-        setIsPlaying(false);
-      }
-    }
-  }, [audioSrc]);
 
   const startRecording = async () => {
     try {
@@ -254,7 +267,7 @@ export const Interview = () => {
         </div>
       )}
 
-{interviewMode === 'portfolio' && !interviewStarted && (
+      {interviewMode === 'portfolio' && !interviewStarted && (
         <div className="mb-6">
           <select 
             onChange={(e) => setSelectedRepo(e.target.value)} 
@@ -309,31 +322,30 @@ export const Interview = () => {
           </div>
           {isTextVisible && <p className="mb-4">{interviewText}</p>}
           <div className="relative">
-  <audio ref={audioRef} style={{display: 'none'}}>
-    <source src={audioSrc} type="audio/mpeg" />
-    Your browser does not support the audio element.
-  </audio>
-  <video 
-    ref={videoRef}
-    width="640"
-    height="360"
-    muted
-    playsInline
-    loop
-    className="w-full"
-  >
-    <source src="/movie/interview.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-  {isMediaReady && !isPlaying && (
-    <button 
-      onClick={playAudioWithVideo} 
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 btn btn-circle btn-lg"
-    >
-      <FaPlay className="text-3xl" />
-    </button>
-  )}
-</div>
+            <audio ref={audioRef} style={{display: 'none'}}>
+              <source src={audioSrc} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            <video 
+              ref={videoRef}
+              width="640"
+              height="360"
+              muted
+              playsInline
+              className="w-full"
+            >
+              <source src="/movie/interview.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            {isMediaReady && !isPlaying && (
+              <button 
+                onClick={playAudioWithVideo} 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 btn btn-circle btn-lg"
+              >
+                <FaPlay className="text-3xl" />
+              </button>
+            )}
+          </div>
 
           <div className="mt-6 flex justify-center">
             {!audioBlob && !isSending && (
@@ -370,29 +382,39 @@ export const Interview = () => {
         </div>
       )}
 
-      {isInterviewEnded && (
+{isInterviewEnded && (
         <div className="mt-6">
           <h2 className="text-2xl font-bold mb-4">面接フィードバック:</h2>
           <p>{feedbackText}</p>
-          <audio 
-            ref={audioRef} 
-            style={{display: 'none'}}
-            onCanPlayThrough={() => setIsFeedbackReady(true)}
-          >
-            <source src={feedbackAudio} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-          <video 
-            ref={videoRef}
-            width="640"
-            height="360"
-            muted
-            playsInline
-            className="w-full mt-4"
-          >
-            <source src="/movie/interview.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <div className="relative mt-4">
+            <audio 
+              ref={audioRef} 
+              style={{display: 'none'}}
+              onCanPlayThrough={() => setIsFeedbackReady(true)}
+            >
+              <source src={feedbackAudio} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            <video 
+              ref={videoRef}
+              width="640"
+              height="360"
+              muted
+              playsInline
+              className="w-full"
+            >
+              <source src="/movie/interview.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            {isMediaReady && !isPlaying && (
+              <button 
+                onClick={playAudioWithVideo} 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 btn btn-circle btn-lg"
+              >
+                <FaPlay className="text-3xl" />
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
