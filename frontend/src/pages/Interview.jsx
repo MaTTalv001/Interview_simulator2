@@ -27,6 +27,7 @@ export const Interview = () => {
   const [isFeedbackReady, setIsFeedbackReady] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false);
   const [isPreparingFeedback, setIsPreparingFeedback] = useState(false);
+  const [audioMimeType, setAudioMimeType] = useState('');
 
   useEffect(() => {
     if (audioSrc) {
@@ -154,7 +155,6 @@ export const Interview = () => {
       console.log("Starting recording...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   
-      // サポートされているMIMEタイプのリスト
       const mimeTypes = [
         'audio/webm',
         'audio/mp4',
@@ -162,7 +162,6 @@ export const Interview = () => {
         'audio/wav'
       ];
   
-      // サポートされている最初のMIMEタイプを見つける
       let mimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
   
       if (!mimeType) {
@@ -171,6 +170,7 @@ export const Interview = () => {
       }
   
       console.log(`Using MIME type: ${mimeType}`);
+      setAudioMimeType(mimeType); 
   
       mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
   
@@ -185,6 +185,7 @@ export const Interview = () => {
         console.log("Recording stopped");
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
         setAudioBlob(audioBlob);
+        setAudioMimeType(mimeType || 'audio/webm');  // 新しい状態を追加
         audioChunksRef.current = [];
       };
   
@@ -213,7 +214,12 @@ export const Interview = () => {
     setIsSending(true);
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recorded_audio.wav');
+      
+      // MIMEタイプに基づいて適切な拡張子を選択
+      const extension = audioMimeType.split('/')[1];
+      const fileName = `recorded_audio.${extension}`;
+      
+      formData.append('audio', audioBlob, fileName);
       const response = await fetch(`${API_URL}/api/v1/speech_to_text`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
