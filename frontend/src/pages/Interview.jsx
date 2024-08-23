@@ -54,8 +54,31 @@ export const Interview = () => {
     }
   };
 
-  const startInterview = async (prompt) => {
+  const startInterviewWithRepo = async () => {
     setIsLoading(true);
+    try {
+      const readme = await fetchReadme(selectedRepo);
+      await startInterview(readme);
+    } catch (error) {
+      console.error("Error starting interview with repo:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startGeneralInterview = async () => {
+    setIsLoading(true);
+    try {
+      const randomQuestion = generalQuestions[Math.floor(Math.random() * generalQuestions.length)];
+      await startInterview(randomQuestion);
+    } catch (error) {
+      console.error("Error starting general interview:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startInterview = async (prompt) => {
     try {
       const response = await fetch(`${API_URL}/api/v1/interview/start`, {
         method: 'POST',
@@ -74,8 +97,6 @@ export const Interview = () => {
       setAudioKey(prevKey => prevKey + 1);
     } catch (error) {
       console.error("Error starting interview:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -83,23 +104,12 @@ export const Interview = () => {
     const videoPlayer = videoRef.current;
     const audioPlayer = audioRef.current;
     if (videoPlayer && audioPlayer) {
-      audioPlayer.src = audioUrl;
-      videoPlayer.muted = true;
-      videoPlayer.loop = true;
-      audioPlayer.oncanplaythrough = () => {
-        videoPlayer.currentTime = 0;
-        videoPlayer.play().catch(e => console.error("Error playing video:", e));
-        audioPlayer.play().catch(e => console.error("Error playing audio:", e));
-      };
-      audioPlayer.onended = () => {
-        videoPlayer.pause();
-      };
-      videoPlayer.onended = () => {
-        videoPlayer.currentTime = 0;
-        videoPlayer.play().catch(e => console.error("Error replaying video:", e));
-      };
-    } else {
-      console.error("Video or audio player is not ready.");
+      const playPromise = videoPlayer.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+        }).catch(e => console.error("Error playing video:", e));
+      }
     }
   };
 
@@ -218,7 +228,7 @@ export const Interview = () => {
         </div>
       )}
 
-      {interviewMode === 'portfolio' && !interviewStarted && (
+{interviewMode === 'portfolio' && !interviewStarted && (
         <div className="mb-6">
           <select 
             onChange={(e) => setSelectedRepo(e.target.value)} 
@@ -231,7 +241,7 @@ export const Interview = () => {
             ))}
           </select>
           <button 
-            onClick={() => startInterview(fetchReadme(selectedRepo))} 
+            onClick={startInterviewWithRepo} 
             disabled={!selectedRepo} 
             className="btn btn-primary mt-4"
           >
@@ -242,7 +252,7 @@ export const Interview = () => {
 
       {interviewMode === 'general' && !interviewStarted && (
         <button 
-          onClick={() => startInterview(generalQuestions[Math.floor(Math.random() * generalQuestions.length)])} 
+          onClick={startGeneralInterview} 
           className="btn btn-primary"
         >
           汎用的な面接を開始
