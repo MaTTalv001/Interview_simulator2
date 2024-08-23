@@ -114,43 +114,77 @@ export const Interview = () => {
     if (videoPlayer && audioPlayer) {
       videoPlayer.muted = true;
       videoPlayer.loop = false;
-
+  
       const playMedia = () => {
-        videoPlayer.currentTime = 0;
-        audioPlayer.currentTime = 0;
-        
-        videoPlayer.play().then(() => {
-          setTimeout(() => {
-            audioPlayer.play().catch(e => {
-              console.error("Error playing audio:", e);
-              setIsPlaying(false);
-              setIsMediaReady(true);
-            });
-          }, 1000);
-        }).catch(e => console.error("Error playing video:", e));
-        
+        // iOSデバイスでの自動再生の制限に対応
+        videoPlayer.playsInline = true;
+        audioPlayer.playsInline = true;
+  
+        const playPromise = videoPlayer.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            setTimeout(() => {
+              audioPlayer.play().catch(e => {
+                console.error("Error playing audio:", e);
+                handlePlaybackError(e);
+              });
+            }, 200);
+          }).catch(e => {
+            console.error("Error playing video:", e);
+            handlePlaybackError(e);
+          });
+        }
         setIsPlaying(true);
       };
-
+  
       const stopMedia = () => {
         videoPlayer.pause();
         audioPlayer.pause();
         setIsPlaying(false);
         setIsMediaReady(true);
       };
-
+  
       audioPlayer.onended = stopMedia;
-
-      if (videoPlayer.readyState >= 2 && audioPlayer.readyState >= 2) {
+  
+      // ユーザーインタラクションの確認
+      if (document.body.hasAttribute('data-user-interacted')) {
         playMedia();
       } else {
-        videoPlayer.oncanplay = playMedia;
-        audioPlayer.oncanplay = playMedia;
+        setIsMediaReady(true);
+        setIsPlaying(false);
       }
     } else {
       console.error("Video or audio player is not ready.");
+      handlePlaybackError(new Error("Media players not ready"));
     }
   };
+  
+  // エラーハンドリング関数
+  const handlePlaybackError = (error) => {
+    console.error("Playback error:", error);
+    setIsPlaying(false);
+    setIsMediaReady(true);
+    // ユーザーにエラーメッセージを表示
+    alert("メディアの再生中にエラーが発生しました。再度お試しください。");
+  };
+  
+  // ユーザーインタラクションを記録する関数
+  const markUserInteraction = () => {
+    document.body.setAttribute('data-user-interacted', 'true');
+  };
+  
+  // コンポーネントのどこかで、ユーザーインタラクションを記録
+  useEffect(() => {
+    const interactionEvents = ['touchstart', 'click'];
+    const handleInteraction = () => {
+      markUserInteraction();
+      interactionEvents.forEach(event => document.removeEventListener(event, handleInteraction));
+    };
+    interactionEvents.forEach(event => document.addEventListener(event, handleInteraction));
+    return () => {
+      interactionEvents.forEach(event => document.removeEventListener(event, handleInteraction));
+    };
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -339,7 +373,10 @@ export const Interview = () => {
             </video>
             {isMediaReady && !isPlaying && (
               <button 
-                onClick={playAudioWithVideo} 
+              onClick={() => {
+                markUserInteraction();
+                playAudioWithVideo();
+              }} 
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 btn btn-circle btn-lg"
               >
                 <FaPlay className="text-3xl" />
