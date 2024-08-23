@@ -108,11 +108,26 @@ export const Interview = () => {
       audioPlayer.src = audioUrl;
       videoPlayer.muted = true;
       videoPlayer.loop = true;
-      audioPlayer.oncanplaythrough = () => {
+  
+      // 再生ボタンの作成
+      const playButton = document.createElement("button");
+      playButton.innerText = "再生";
+      playButton.className = "btn btn-accent mt-4 mx-auto"; // DaisyUIのボタンスタイルに中央揃えを追加
+      playButton.onclick = () => {
         videoPlayer.currentTime = 0;
         videoPlayer.play().catch(e => console.error("Error playing video:", e));
         audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+        playButton.remove(); // 再生後にボタンを削除
       };
+  
+      // ボタンを囲むdivを作成して中央揃え
+      const buttonWrapper = document.createElement("div");
+      buttonWrapper.className = "flex justify-center"; // ボタンを中央揃えにするためのスタイル
+      buttonWrapper.appendChild(playButton);
+  
+      // ボタンを画像（動画）のすぐ下に配置
+      videoPlayer.parentNode.insertBefore(buttonWrapper, videoPlayer.nextSibling);
+      
       audioPlayer.onended = () => {
         videoPlayer.pause();
       };
@@ -124,6 +139,8 @@ export const Interview = () => {
       console.error("Video or audio player is not ready.");
     }
   };
+  
+  
 
   const startRecording = async () => {
     try {
