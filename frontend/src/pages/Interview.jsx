@@ -153,22 +153,41 @@ export const Interview = () => {
     try {
       console.log("Starting recording...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      
+  
+      // サポートされているMIMEタイプのリスト
+      const mimeTypes = [
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg',
+        'audio/wav'
+      ];
+  
+      // サポートされている最初のMIMEタイプを見つける
+      let mimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
+  
+      if (!mimeType) {
+        console.warn("No supported MIME types found. Falling back to default.");
+        mimeType = '';
+      }
+  
+      console.log(`Using MIME type: ${mimeType}`);
+  
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
+  
       mediaRecorderRef.current.ondataavailable = (event) => {
         console.log("Data available", event.data);
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
-      
+  
       mediaRecorderRef.current.onstop = () => {
         console.log("Recording stopped");
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
         setAudioBlob(audioBlob);
         audioChunksRef.current = [];
       };
-      
+  
       mediaRecorderRef.current.start();
       setIsRecording(true);
       console.log("Recording started successfully");
