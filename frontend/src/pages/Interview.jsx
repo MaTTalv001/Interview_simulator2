@@ -27,17 +27,16 @@ export const Interview = () => {
   const [isFeedbackReady, setIsFeedbackReady] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false);
   const [isPreparingFeedback, setIsPreparingFeedback] = useState(false);
-  
 
   useEffect(() => {
     if (audioSrc) {
-      playAudioWithVideo(audioSrc);
+      createPlayButton(audioSrc);
     }
   }, [audioSrc]);
 
   useEffect(() => {
     if (isFeedbackReady && feedbackAudio) {
-      playAudioWithVideo(feedbackAudio);
+      createPlayButton(feedbackAudio);
     }
   }, [isFeedbackReady, feedbackAudio]);
 
@@ -101,6 +100,28 @@ export const Interview = () => {
     }
   };
 
+  const createPlayButton = (audioUrl) => {
+    const videoPlayer = videoRef.current;
+    const audioPlayer = audioRef.current;
+
+    // 再生ボタンの作成
+    const playButton = document.createElement("button");
+    playButton.innerText = "再生";
+    playButton.className = "btn btn-accent mt-4 mx-auto"; // DaisyUIのボタンスタイルに中央揃えを追加
+    playButton.onclick = () => {
+      playAudioWithVideo(audioUrl);
+      playButton.remove(); // 再生後にボタンを削除
+    };
+
+    // ボタンを囲むdivを作成して中央揃え
+    const buttonWrapper = document.createElement("div");
+    buttonWrapper.className = "flex justify-center"; // ボタンを中央揃えにするためのスタイル
+    buttonWrapper.appendChild(playButton);
+
+    // ボタンを画像（動画）のすぐ下に配置
+    videoPlayer.parentNode.insertBefore(buttonWrapper, videoPlayer.nextSibling);
+  };
+
   const playAudioWithVideo = (audioUrl) => {
     const videoPlayer = videoRef.current;
     const audioPlayer = audioRef.current;
@@ -108,29 +129,17 @@ export const Interview = () => {
       audioPlayer.src = audioUrl;
       videoPlayer.muted = true;
       videoPlayer.loop = true;
-  
-      // 再生ボタンの作成
-      const playButton = document.createElement("button");
-      playButton.innerText = "再生";
-      playButton.className = "btn btn-accent mt-4 mx-auto"; // DaisyUIのボタンスタイルに中央揃えを追加
-      playButton.onclick = () => {
+
+      audioPlayer.oncanplaythrough = () => {
         videoPlayer.currentTime = 0;
         videoPlayer.play().catch(e => console.error("Error playing video:", e));
         audioPlayer.play().catch(e => console.error("Error playing audio:", e));
-        playButton.remove(); // 再生後にボタンを削除
       };
-  
-      // ボタンを囲むdivを作成して中央揃え
-      const buttonWrapper = document.createElement("div");
-      buttonWrapper.className = "flex justify-center"; // ボタンを中央揃えにするためのスタイル
-      buttonWrapper.appendChild(playButton);
-  
-      // ボタンを画像（動画）のすぐ下に配置
-      videoPlayer.parentNode.insertBefore(buttonWrapper, videoPlayer.nextSibling);
-      
+
       audioPlayer.onended = () => {
         videoPlayer.pause();
       };
+
       videoPlayer.onended = () => {
         videoPlayer.currentTime = 0;
         videoPlayer.play().catch(e => console.error("Error replaying video:", e));
@@ -139,34 +148,44 @@ export const Interview = () => {
       console.error("Video or audio player is not ready.");
     }
   };
-  
-  
 
   const startRecording = async () => {
     try {
+      console.log("Starting recording...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      
       mediaRecorderRef.current.ondataavailable = (event) => {
+        console.log("Data available", event.data);
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
+      
       mediaRecorderRef.current.onstop = () => {
+        console.log("Recording stopped");
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         setAudioBlob(audioBlob);
         audioChunksRef.current = [];
       };
+      
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      console.log("Recording started successfully");
     } catch (error) {
       console.error("Error starting recording:", error);
+      alert("マイクへのアクセスに失敗しました。ブラウザの設定を確認してください。");
     }
   };
-
+  
   const stopRecording = () => {
+    console.log("Stopping recording...");
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      console.log("Recording stopped successfully");
+    } else {
+      console.log("No active recording to stop");
     }
   };
 
@@ -245,7 +264,7 @@ export const Interview = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">面接シミュレーション</h1>
-      
+
       {!interviewMode && (
         <div className="flex justify-center space-x-4 mb-6">
           <button onClick={() => setInterviewMode('portfolio')} className="btn btn-primary btn-lg">
@@ -257,10 +276,10 @@ export const Interview = () => {
         </div>
       )}
 
-{interviewMode === 'portfolio' && !interviewStarted && (
+      {interviewMode === 'portfolio' && !interviewStarted && (
         <div className="mb-6">
-          <select 
-            onChange={(e) => setSelectedRepo(e.target.value)} 
+          <select
+            onChange={(e) => setSelectedRepo(e.target.value)}
             value={selectedRepo}
             className="select select-bordered w-full max-w-xs"
           >
@@ -269,9 +288,9 @@ export const Interview = () => {
               <option key={index} value={repoName}>{repoName}</option>
             ))}
           </select>
-          <button 
-            onClick={startInterviewWithRepo} 
-            disabled={!selectedRepo} 
+          <button
+            onClick={startInterviewWithRepo}
+            disabled={!selectedRepo}
             className="btn btn-primary mt-4"
           >
             選択したリポジトリで面接を開始
@@ -280,8 +299,8 @@ export const Interview = () => {
       )}
 
       {interviewMode === 'general' && !interviewStarted && (
-        <button 
-          onClick={startGeneralInterview} 
+        <button
+          onClick={startGeneralInterview}
           className="btn btn-primary"
         >
           汎用的な面接を開始
@@ -311,11 +330,11 @@ export const Interview = () => {
             </button>
           </div>
           {isTextVisible && <p className="mb-4">{interviewText}</p>}
-          <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
+          <audio ref={audioRef} key={`ai-${audioKey}`} style={{ display: 'none' }}>
             <source src={audioSrc} type="audio/mpeg" />
             Your browser does not support the audio element.
           </audio>
-          <video 
+          <video
             ref={videoRef}
             width="640"
             height="360"
@@ -329,31 +348,40 @@ export const Interview = () => {
           </video>
 
           <div className="mt-6 flex justify-center">
-            {!audioBlob && !isSending && (
-              <button
-                onClick={isRecording ? stopRecording : startRecording}
-                className={`btn ${isRecording ? 'btn-error' : 'btn-primary'} flex items-center`}
-              >
-                <FaMicrophone className="mr-2" />
-                {isRecording ? '録音を停止' : 'マイクで回答する'}
-              </button>
-            )}
-            {audioBlob && !isSending && (
-              <button
-                onClick={handleSendAudioToBackend}
-                className="btn btn-primary flex items-center"
-              >
-                <FaPaperPlane className="mr-2" />
-                送信する
-              </button>
-            )}
-            {isSending && (
-              <div className="text-center">
-                <span className="loading loading-spinner loading-md"></span>
-                <p className="mt-2">あなたの回答を送信しています...</p>
-              </div>
-            )}
-          </div>
+  {!isRecording && !audioBlob && !isSending && (
+    <button
+      onClick={startRecording}
+      className="btn btn-primary flex items-center"
+    >
+      <FaMicrophone className="mr-2" />
+      マイクで回答する
+    </button>
+  )}
+  {isRecording && (
+    <button
+      onClick={stopRecording}
+      className="btn btn-error flex items-center"
+    >
+      <FaMicrophone className="mr-2" />
+      録音を停止
+    </button>
+  )}
+  {audioBlob && !isSending && (
+    <button
+      onClick={handleSendAudioToBackend}
+      className="btn btn-primary flex items-center"
+    >
+      <FaPaperPlane className="mr-2" />
+      送信する
+    </button>
+  )}
+  {isSending && (
+    <div className="text-center">
+      <span className="loading loading-spinner loading-md"></span>
+      <p className="mt-2">あなたの回答を送信しています...</p>
+    </div>
+  )}
+</div>
 
           <div className="mt-6 flex justify-center">
             <button onClick={endInterview} className="btn btn-warning">
@@ -367,15 +395,15 @@ export const Interview = () => {
         <div className="mt-6">
           <h2 className="text-2xl font-bold mb-4">面接フィードバック:</h2>
           <p>{feedbackText}</p>
-          <audio 
-            ref={audioRef} 
-            style={{display: 'none'}}
+          <audio
+            ref={audioRef}
+            style={{ display: 'none' }}
             onCanPlayThrough={() => setIsFeedbackReady(true)}
           >
             <source src={feedbackAudio} type="audio/mpeg" />
             Your browser does not support the audio element.
           </audio>
-          <video 
+          <video
             ref={videoRef}
             width="640"
             height="360"
