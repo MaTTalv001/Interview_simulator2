@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaMicrophone, FaPaperPlane, FaPlay, FaStop } from 'react-icons/fa';
 
-const Logs = () => {
+export const Logs = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
