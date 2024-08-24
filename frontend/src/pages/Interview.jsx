@@ -151,10 +151,12 @@ export const Interview = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp4' });
         setAudioBlob(audioBlob);
         audioChunksRef.current = [];
+        setIsPlaying(false); 
         console.log("録音完了。Blobサイズ:", audioBlob.size, "バイト");
       };
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      setIsPlaying(false);
       console.log("録音開始");
     } catch (error) {
       console.error("録音開始エラー:", error);
@@ -164,6 +166,7 @@ export const Interview = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      setIsPlaying(false);
       console.log("録音停止");
     }
   };
