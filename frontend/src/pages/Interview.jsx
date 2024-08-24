@@ -4,6 +4,15 @@ import { API_URL } from "../config/settings";
 import { generalQuestions } from "../utils/generalQuestions";
 import { FaMicrophone, FaPaperPlane, FaToggleOn, FaPlay, FaStop, FaToggleOff } from 'react-icons/fa';
 
+const interviewers = [
+  {
+    id: 1,
+    name: "AI採用担当者",
+    video: "/movie/interview.mp4",
+    thumbnail: "/interviewer/interviewer01.jpg"
+  }
+];
+
 export const Interview = () => {
   const { currentUser, token } = useAuth();
   const [selectedRepo, setSelectedRepo] = useState("");
@@ -31,6 +40,9 @@ export const Interview = () => {
   const audioPlayerRef = useRef(null);
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [showUpdateMessage, setShowUpdateMessage] = useState(false);
+  const [selectedInterviewer, setSelectedInterviewer] = useState(interviewers[0]);
+
+  
 
   const requestMicrophonePermission = async () => {
     try {
@@ -257,7 +269,7 @@ export const Interview = () => {
       setIsAudioReady(true);
       setIsPlaying(false);
       setShowUpdateMessage(true);
-      setTimeout(() => setShowUpdateMessage(false), 2000); // 2秒後にメッセージを非表示にする
+      setTimeout(() => setShowUpdateMessage(false), 3000); // 2秒後にメッセージを非表示にする
     } catch (error) {
       console.error("Error continuing interview:", error);
     }
@@ -307,6 +319,32 @@ export const Interview = () => {
           </button>
         </div>
       )}
+
+{interviewMode && !interviewStarted && (
+  <div className="mb-6">
+    <h2 className="text-xl font-semibold mb-4">面接官を選択してください：</h2>
+    <div className="flex flex-wrap justify-center gap-4">
+      {interviewers.map((interviewer) => (
+        <div key={interviewer.id} className="w-48 text-center">
+          <img 
+            src={interviewer.thumbnail} 
+            alt={interviewer.name} 
+            className="w-full h-48 object-cover mb-2 rounded"
+          />
+          <p className="font-medium">{interviewer.name}</p>
+          <input 
+            type="radio" 
+            name="interviewer" 
+            value={interviewer.id} 
+            checked={selectedInterviewer.id === interviewer.id}
+            onChange={() => setSelectedInterviewer(interviewer)}
+            className="radio radio-primary mt-2"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
 {interviewMode === 'portfolio' && !interviewStarted && (
         <div className="mb-6">
@@ -395,7 +433,7 @@ export const Interview = () => {
           {!audioBlob && !isSending && (
   <button
     onClick={isRecording ? stopRecording : startRecording}
-    className={`btn ${isRecording ? 'btn-error' : 'btn-primary'} w-full`}
+    className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-accent'} w-full`}
   >
     <FaMicrophone className="mr-2" />
     {isRecording ? '録音を停止' : 'マイクで回答する'}
@@ -412,7 +450,7 @@ export const Interview = () => {
     </button>
     <button
       onClick={handleSendAudioToBackend}
-      className="btn btn-primary flex-1"
+      className="btn btn-secondary flex-1"
     >
       <FaPaperPlane className="mr-2" />
       送信する
@@ -479,10 +517,10 @@ export const Interview = () => {
           <div className="mt-4 flex justify-center">
             <button
               onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
-              className={`btn ${isPlaying ? 'btn-error' : 'btn-primary'} flex items-center`}
+              className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} flex items-center w-full`}
             >
               {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-              {isPlaying ? '停止' : '再生'}
+              {isPlaying ? '停止' : 'フィードバックを再生'}
             </button>
           </div>
         )}
