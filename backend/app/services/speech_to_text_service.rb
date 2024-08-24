@@ -17,7 +17,8 @@ class SpeechToTextService
     body = {
       multipart: true,
       model: 'whisper-1',
-      file: audio_file
+      file: audio_file,
+      language: "ja"
     }
 
     response = self.class.post('/audio/transcriptions', body: body, headers: @options[:headers])
