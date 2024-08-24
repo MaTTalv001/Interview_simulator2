@@ -8,6 +8,7 @@ COPY Gemfile.lock /app/Gemfile.lock
 
 RUN gem install bundler
 RUN bundle install
+RUN apt-get update && apt-get install -y ffmpeg
 
 COPY . /app
 
