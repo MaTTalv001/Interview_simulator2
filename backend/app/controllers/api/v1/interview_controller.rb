@@ -42,7 +42,7 @@ class Api::V1::InterviewController < ApplicationController
       chatgpt_service = ChatgptService.new
       text_to_speech_service = TextToSpeechService.new
   
-      feedback_prompt = "あなたはエンジニア面接担当者であり、同時にキャリアコンサルタントでもあります。以下の面接の会話ログを分析し、受験者(user)に対し、口語で、採用面接としてのフィードバックを行ってください(マークダウン表記などは不要です。)。強み、改善点、全体的な印象を含め、受験者のためになるようなアドバイスをお願いします"
+      feedback_prompt = "あなたはエンジニア面接担当者であり、同時にキャリアコンサルタントでもあります。以下の面接の会話ログを分析し、受験者(user)に対し、口語で、採用面接としてのフィードバックを行ってください。強み、改善点、全体的な印象を含め、受験者のためになるようなアドバイスをお願いします。ただし、ユーザーの回答が乏しく会話が成立していないと考えられる場合は面接としての評価が困難であることを伝えてください（無理やり褒める必要はありません）。なお、マークダウン表記などは不要です。ユーザーの最初の入力はあなたが質問を考えるためのものですので、面接の評価とは関係しません。"
   
       feedback_messages = [
         { role: 'system', content: feedback_prompt },

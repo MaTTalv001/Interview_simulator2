@@ -270,7 +270,7 @@ export const Interview = () => {
       setIsAudioReady(true);
       setIsPlaying(false);
       setShowUpdateMessage(true);
-      setTimeout(() => setShowUpdateMessage(false), 3000); // 2秒後にメッセージを非表示にする
+      setTimeout(() => setShowUpdateMessage(false), 3000); // 3秒後にメッセージを非表示にする
     } catch (error) {
       console.error("Error continuing interview:", error);
     }
@@ -287,7 +287,7 @@ export const Interview = () => {
         },
         body: JSON.stringify({ messages })
       });
-      if (!response.ok) throw new Error('Failed to end interview');
+      if (!response.ok) throw new Error('面接終了に失敗しました');
       const data = await response.json();
       setFeedbackText(data.text);
       setFeedbackAudio(data.audio);
@@ -295,8 +295,10 @@ export const Interview = () => {
       setIsFeedbackReady(true);
       setIsAudioReady(true);
       setIsPlaying(false);
+      console.log(messages);
+      console.log(data.text);
     } catch (error) {
-      console.error("Error ending interview:", error);
+      console.error("面接終了に失敗しました", error);
     } finally {
       setIsPreparingFeedback(false);
     }
@@ -308,7 +310,7 @@ export const Interview = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-20">面接練習</h1>
+      <h1 className="text-3xl font-bold mb-6">面接練習</h1>
       
       
       {!interviewMode && (
