@@ -1,17 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link , useNavigate } from 'react-router-dom';
 import { useAuth } from "../providers/auth";
+import { RoutePath } from "../config/route_path";
 
 export const Header = React.memo(() => {
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const [currentTheme, setCurrentTheme] = useState('autumn');
   const themes = ["light", "dark", "R","cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter"];
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setCurrentTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }, []);
 
   const handleClickLogout = () => {
     logout();
+    navigate(RoutePath.Home.path);
   };
 
   const handleThemeChange = (e) => {
     const newTheme = e.target.value;
+    setCurrentTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
   };
@@ -73,29 +86,30 @@ export const Header = React.memo(() => {
           </Link>
         </div>
         <div className="navbar-end flex items-center">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn m-1">
-              カラー設定
-              <svg width="12px" height="12px" className="ml-2 h-4 w-4 fill-current opacity-60 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
-                <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
-              </svg>
-            </div>
-            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
-              {themes.map(theme => (
-                <li key={theme}>
-                  <input
-                    type="radio"
-                    name="theme-dropdown"
-                    className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-                    aria-label={theme}
-                    value={theme}
-                    onChange={handleThemeChange}
-                  />
-                </li>
-              ))}
-            </ul>
+        <div className="dropdown dropdown-end">
+          <div tabIndex={0} role="button" className="btn m-1">
+            カラー設定
+            <svg width="12px" height="12px" className="ml-2 h-4 w-4 fill-current opacity-60 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
           </div>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+            {themes.map(theme => (
+              <li key={theme}>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label={theme}
+                  value={theme}
+                  checked={currentTheme === theme}
+                  onChange={handleThemeChange}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
+      </div>
       </div>
     </header>
   );
