@@ -1,128 +1,65 @@
-import React, { useState, useRef, useEffect } from "react";
-import { FaMicrophone, FaPaperPlane, FaPlay, FaStop } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../providers/auth";
+import { API_URL } from "../config/settings";
 
 export const Logs = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const audioPlayerRef = useRef(null);
-
-  const requestMicrophonePermission = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("マイクの権限が許可されました");
-    } catch (error) {
-      console.error("マイクの権限が拒否されました:", error);
-    }
-  };
-
-  const startRecording = async () => {
-    await requestMicrophonePermission();
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-          console.log("音声データを受信:", event.data.size, "バイト ");
-        }
-      };
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp4' });
-        setAudioBlob(audioBlob);
-        audioChunksRef.current = [];
-        console.log("録音完了。Blobサイズ:", audioBlob.size, "バイト");
-      };
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      console.log("録音開始");
-    } catch (error) {
-      console.error("録音開始エラー:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      console.log("録音停止");
-    }
-  };
-
-  const playRecording = () => {
-    if (audioBlob) {
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioPlayerRef.current.src = audioUrl;
-      audioPlayerRef.current.play().then(() => {
-        console.log("再生開始");
-        setIsPlaying(true);
-      }).catch(error => {
-        console.error("再生エラー:", error);
-      });
-    }
-  };
-
-  const stopPlaying = () => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-      audioPlayerRef.current.currentTime = 0;
-      setIsPlaying(false);
-      console.log("再生停止");
-    }
-  };
+  const { token } = useAuth();
+  const [logs, setLogs] = useState([]);
+  const [selectedLog, setSelectedLog] = useState(null);
 
   useEffect(() => {
-    return () => {
-      if (audioPlayerRef.current) {
-        URL.revokeObjectURL(audioPlayerRef.current.src);
-      }
-    };
+    fetchLogs();
   }, []);
+
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/interview_logs`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch logs');
+      const data = await response.json();
+      setLogs(data);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">音声録音とログ</h1>
+      <h1 className="text-3xl font-bold mb-6">面接ログ</h1>
 
-      <div className="mt-6 flex justify-center space-x-4">
-        {!audioBlob && (
-          <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`btn ${isRecording ? 'btn-error' : 'btn-primary'} flex items-center`}
-          >
-            <FaMicrophone className="mr-2" />
-            {isRecording ? '録音を停止' : '録音を開始'}
-          </button>
-        )}
-        {audioBlob && (
-          <>
-            <button
-              onClick={isPlaying ? stopPlaying : playRecording}
-              className="btn btn-secondary flex items-center"
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="col-span-1 border-r pr-4">
+          <h2 className="text-xl font-semibold mb-4">面接一覧</h2>
+          {logs.map((log) => (
+            <div 
+              key={log.id} 
+              className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+              onClick={() => setSelectedLog(log)}
             >
-              {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-              {isPlaying ? '再生を停止' : '再生する'}
-            </button>
-            <button
-              onClick={() => {/* ここに送信ロジックを追加 */}}
-              className="btn btn-primary flex items-center"
-            >
-              <FaPaperPlane className="mr-2" />
-              送信する
-            </button>
-          </>
-        )}
-      </div>
-
-      <audio ref={audioPlayerRef} style={{ display: 'none' }} />
-
-      {audioBlob && (
-        <div className="mt-4">
-          <p>録音が完了しました。上のボタンから再生または送信できます。</p>
-          <p>録音サイズ: {audioBlob.size} バイト</p>
+              {new Date(log.created_at).toLocaleString()}
+            </div>
+          ))}
         </div>
-      )}
+
+        <div className="col-span-2">
+          {selectedLog ? (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">面接詳細</h2>
+              <h3 className="text-lg font-medium mb-2">会話ログ：</h3>
+              <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap mb-4">
+                {selectedLog.body}
+              </pre>
+              <h3 className="text-lg font-medium mb-2">フィードバック：</h3>
+              <p className="bg-gray-100 p-4 rounded">{selectedLog.feedback}</p>
+            </div>
+          ) : (
+            <p>左側のリストから面接ログを選択してください。</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

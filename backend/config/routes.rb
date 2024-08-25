@@ -21,12 +21,11 @@ Rails.application.routes.draw do
           get 'github_info'
           get 'avatars'
           patch 'update_avatar'
-          patch 'update_experience'  # 新しく追加
+          patch 'update_experience' 
         end
       end
-      resources :interview_logs, only: [:create]
-      
-      resources :experiences, only: [:index]  # 新しく追加
+      resources :experiences, only: [:index]      
+      resources :interview_logs, only: [:index, :create]
     end
   end
   

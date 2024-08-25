@@ -216,7 +216,7 @@ export const MyPage = () => {
       <div className="mt-6 text-center">
   <button 
     onClick={toggleRepoList} 
-    className="btn btn-outline btn-info mx-auto block" 
+    className="btn btn-outline btn-secondary mx-auto block" 
   >
     {isRepoListOpen ? 'リポジトリを隠す' : 'リポジトリを表示'}
   </button>

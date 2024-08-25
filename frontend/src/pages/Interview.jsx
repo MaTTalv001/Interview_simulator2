@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../providers/auth";
+import { Link } from "react-router-dom";
 import { API_URL } from "../config/settings";
 import { generalQuestions } from "../utils/generalQuestions";
 import { FaMicrophone, FaPaperPlane, FaToggleOn, FaPlay, FaStop, FaToggleOff } from 'react-icons/fa';
@@ -42,6 +43,7 @@ export const Interview = () => {
   const [showUpdateMessage, setShowUpdateMessage] = useState(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState(interviewers[0]);
   const [isFeedbackTextVisible, setIsFeedbackTextVisible] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   
 
@@ -304,8 +306,19 @@ export const Interview = () => {
     }
   };
 
+  const formatConversation = (messages) => {
+    // ログを保存する際に最初の2つのメッセージ（system と 最初の user）をスキップ
+    const relevantMessages = messages.slice(2);
+    
+    return relevantMessages.map(message => 
+      `${message.role}: ${message.content}`
+    ).join('\n');
+  };
+
   const saveInterview = async () => {
     try {
+      const formattedConversation = formatConversation(messages);
+      
       const response = await fetch(`${API_URL}/api/v1/interview_logs`, {
         method: 'POST',
         headers: {
@@ -314,16 +327,18 @@ export const Interview = () => {
         },
         body: JSON.stringify({
           interview_log: {
-            body: JSON.stringify(messages),
+            body: formattedConversation,
             feedback: feedbackText
           }
         })
       });
+      
       if (!response.ok) throw new Error('Failed to save interview log');
       const data = await response.json();
-      console.log('面接ログを保存しました', data);
+      console.log('Interview log saved successfully', data);
+      setIsSaved(true);  // 保存成功時に状態を更新
     } catch (error) {
-      console.error("面接ログの保存に失敗しました", error);
+      console.error("Error saving interview log:", error);
     }
   };
 
@@ -466,7 +481,7 @@ export const Interview = () => {
   <div className="mb-4 flex justify-center">
     <button
       onClick={isRecording ? stopRecording : startRecording}
-      className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-accent'} w-4/5`}
+      className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-secondary'} w-4/5`}
     >
       <FaMicrophone className="mr-2" />
       {isRecording ? '録音を停止' : 'マイクで回答する'}
@@ -510,7 +525,7 @@ export const Interview = () => {
           )}
 
           <div className="mt-4">
-            <button onClick={endInterview} className="btn btn-warning w-4/5 mx-auto block">
+            <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block">
               面接を終える
             </button>
           </div>
@@ -518,7 +533,7 @@ export const Interview = () => {
       )}
       {showUpdateMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-blue-500 text-white px-6 py-4 rounded-lg shadow-lg animate-bounce">
+          <div className="bg-primary text-white px-6 py-4 rounded-lg shadow-lg animate-bounce">
             <p className="text-lg font-semibold">会話が更新されました。再生ボタンを押してください。</p>
           </div>
         </div>
@@ -565,13 +580,22 @@ export const Interview = () => {
             </div>
           )}
           <div className="mt-4 flex justify-center">
-      <button
-        onClick={saveInterview}
-        className="btn btn-success w-4/5 mx-auto block"
-      >
-        面接記録を保存する
-      </button>
-    </div>
+          {!isSaved ? (
+            <button
+              onClick={saveInterview}
+              className="btn btn-accent w-4/5 mx-auto block"
+            >
+              面接記録を保存する
+            </button>
+          ) : (
+            <Link
+              to="/Logs"
+              className="btn btn-accent w-4/5 mx-auto flex items-center justify-center"
+            >
+              振り返りページへ
+            </Link>
+          )}
+        </div>
         </div>
       )}
     </div>

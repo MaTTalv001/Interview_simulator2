@@ -1,4 +1,9 @@
 class Api::V1::InterviewLogsController < ApplicationController
+    def index
+        logs = @current_user.interview_logs.order(created_at: :desc)
+        render json: logs
+      end
+    
     def create
       interview_log = @current_user.interview_logs.new(interview_log_params)
   
