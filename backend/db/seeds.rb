@@ -25,8 +25,8 @@ experience_data = [
   { id: 1, experience: "完全未経験" },
   { id: 2, experience: "IT部門経験（プログラミングなし）" },
   { id: 3, experience: "プログラミング経験(アプリ開発なし)" },
-  { id: 4, experience: "WEBエンジニア1年以内" },
-  { id: 5, experience: "WEBエンジニア2年以上" }
+  { id: 4, experience: "WEBエンジニア1年未満" },
+  { id: 5, experience: "WEBエンジニア1年以上" }
 ]
 
 experience_data.each do |data|

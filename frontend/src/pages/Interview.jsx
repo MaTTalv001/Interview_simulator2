@@ -343,12 +343,23 @@ export const Interview = () => {
   };
 
   if (!currentUser) {
-    return <div className="text-center">Please log in to access this page.</div>;
+    return (
+    <>
+    <div className="text-center">
+          <span className="mt-4 loading loading-spinner loading-lg"></span>
+          <p className="mt-4">Now Loading...</p>
+        </div>
+    </>);
   }
 
   return (
     <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">面接練習</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">面接練習</h1>
+        <Link to={`/MyPage`} className="btn btn-ghost">
+        マイページへ
+        </Link>
+    </div>
       
       
       {!interviewMode && (

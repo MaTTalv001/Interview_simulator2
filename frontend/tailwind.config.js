@@ -16,12 +16,15 @@ module.exports = {
   daisyui: {
     themes: [
       {
-        R: {
+        R: { //RUNTEQモード
           "primary": "#fc7401",
           "secondary": "#2ec1a5",
           "accent": "#ff5f47",
           "neutral": "#959ea7",
           "base-100": "#ffffff",
+          "base-200": "#f2f2f2",  
+          "base-300": "#e5e5e5",  
+          "base-content": "#333333", 
         },
       },
       "light",

@@ -152,7 +152,13 @@ export const MyPage = () => {
   }
 
   if (!currentUser) {
-    return <div className="text-center">Please log in to access this page.</div>;
+    return (
+    <>
+    <div className="text-center">
+          <span className="mt-4 loading loading-spinner loading-lg"></span>
+          <p className="mt-4">Now Loading...</p>
+        </div>
+    </>);
   }
 
   return (
@@ -181,21 +187,21 @@ export const MyPage = () => {
           
           {/* <div className="badge badge-primary">ID: {currentUser.id}</div> */}
           <div className="mt-4">
-            <label htmlFor="experience" className="block text-sm font-medium text-gray-700">
-              経験レベル
-            </label>
-            <select
-              id="experience"
-              value={currentUser.experience?.id || ''}
-              onChange={handleExperienceChange}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            >
-              {experiences && experiences.length > 0 ? (
-  experiences.map((exp) => (
-    <option key={exp.id} value={exp.id}>
-      {exp.experience}
-    </option>
-  ))
+  <label htmlFor="experience" className="block text-sm font-medium">
+    経験レベル
+  </label>
+  <select
+    id="experience"
+    value={currentUser.experience?.id || ''}
+    onChange={handleExperienceChange}
+    className="mt-1 block w-full pl-3 pr-10 py-2 select select-bordered rounded-md bg-base-100 text-base-content"
+  >
+    {experiences && experiences.length > 0 ? (
+      experiences.map((exp) => (
+        <option key={exp.id} value={exp.id} className="bg-base-100 text-base-content">
+          {exp.experience}
+        </option>
+      ))
 ) : (
   <option value="">Loading experiences...</option>
 )}
