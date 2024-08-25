@@ -24,6 +24,7 @@ Rails.application.routes.draw do
           patch 'update_experience'  # 新しく追加
         end
       end
+      resources :interview_logs, only: [:create]
       
       resources :experiences, only: [:index]  # 新しく追加
     end

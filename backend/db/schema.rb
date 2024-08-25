@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_21_130049) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_25_025559) do
   create_table "avatars", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "avatar_url", null: false
     t.datetime "created_at", null: false
@@ -39,12 +39,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_21_130049) do
 
   create_table "interview_logs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "company_id", null: false
     t.text "body", null: false
-    t.integer "evaluation"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_interview_logs_on_company_id"
+    t.text "feedback"
     t.index ["user_id"], name: "index_interview_logs_on_user_id"
   end
 
@@ -91,7 +89,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_21_130049) do
   end
 
   add_foreign_key "comments", "users"
-  add_foreign_key "interview_logs", "company_types", column: "company_id"
   add_foreign_key "interview_logs", "users"
   add_foreign_key "user_authentications", "users"
   add_foreign_key "users", "avatars"

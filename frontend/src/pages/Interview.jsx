@@ -304,6 +304,29 @@ export const Interview = () => {
     }
   };
 
+  const saveInterview = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/interview_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          interview_log: {
+            body: JSON.stringify(messages),
+            feedback: feedbackText
+          }
+        })
+      });
+      if (!response.ok) throw new Error('Failed to save interview log');
+      const data = await response.json();
+      console.log('面接ログを保存しました', data);
+    } catch (error) {
+      console.error("面接ログの保存に失敗しました", error);
+    }
+  };
+
   if (!currentUser) {
     return <div className="text-center">Please log in to access this page.</div>;
   }
@@ -541,6 +564,14 @@ export const Interview = () => {
               </button>
             </div>
           )}
+          <div className="mt-4 flex justify-center">
+      <button
+        onClick={saveInterview}
+        className="btn btn-success w-4/5 mx-auto block"
+      >
+        面接記録を保存する
+      </button>
+    </div>
         </div>
       )}
     </div>
