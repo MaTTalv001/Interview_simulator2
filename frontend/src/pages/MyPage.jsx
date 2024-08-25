@@ -33,13 +33,13 @@ export const MyPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch avatars');
+        throw new Error('アバター情報の取得に失敗しました');
       }
 
       const data = await response.json();
       setAvatars(data);
     } catch (error) {
-      console.error('Error fetching avatars:', error);
+      console.error('アバター情報の取得に失敗しました', error);
     }
   };
 
@@ -56,13 +56,13 @@ export const MyPage = () => {
       });
   
       if (!response.ok) {
-        throw new Error('Failed to fetch experiences');
+        throw new Error('アバター情報の取得に失敗しました');
       }
   
       const data = await response.json();
       setExperiences(data);
     } catch (error) {
-      console.error('Error fetching experiences:', error);
+      console.error('アバター情報の取得に失敗しました', error);
     }
   };
 
@@ -83,7 +83,7 @@ export const MyPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update avatar');
+        throw new Error('アバター情報の更新に失敗しました');
       }
 
       const data = await response.json();
@@ -93,7 +93,7 @@ export const MyPage = () => {
       }));
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error updating avatar:', error);
+      console.error('アバター情報の更新に失敗しました', error);
     }
   };
 
@@ -110,7 +110,7 @@ export const MyPage = () => {
       });
   
       if (!response.ok) {
-        throw new Error('Failed to update experience');
+        throw new Error('経験情報の取得に失敗しました');
       }
   
       const updatedUser = await response.json();
@@ -119,7 +119,7 @@ export const MyPage = () => {
         experience: updatedUser.experience
       }));
     } catch (error) {
-      console.error('Error updating experience:', error);
+      console.error('経験情報の更新に失敗しました', error);
     }
   };
 
@@ -156,7 +156,7 @@ export const MyPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 max-w-3xl">
       <div className="card lg:card-side bg-base-100 shadow-xl">
         <figure onClick={handleAvatarClick} className="cursor-pointer">
           <img 
@@ -179,7 +179,7 @@ export const MyPage = () => {
     </a>
   </div>
           
-          <div className="badge badge-primary">ID: {currentUser.id}</div>
+          {/* <div className="badge badge-primary">ID: {currentUser.id}</div> */}
           <div className="mt-4">
             <label htmlFor="experience" className="block text-sm font-medium text-gray-700">
               経験レベル
@@ -204,41 +204,42 @@ export const MyPage = () => {
           
           <div className="mt-8 flex justify-center space-x-4">
         <Link to="/Interview" className="btn btn-lg btn-primary">
-          バーチャル面接
+          面接練習
         </Link>
         <Link to="/Logs" className="btn btn-lg btn-primary">
-          振り返り
+          練習ログ
         </Link>
         <Link to="/Logs" className="btn btn-lg btn-primary">
-          情報共有
+          情報交換
         </Link>
       </div>
-      <div className="mt-6">
-            <button 
-              onClick={toggleRepoList} 
-              className="btn btn-outline btn-info"
-            >
-              {isRepoListOpen ? 'リポジトリを隠す' : 'リポジトリを表示'}
-            </button>
-            {isRepoListOpen && (
-              <div className="mt-2">
-                <h3 className="text-xl font-bold mb-2">Repositories</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {currentUser.github_repositories.map((repo, index) => (
-                    <a 
-                      key={index} 
-                      href={`https://github.com/${currentUser.nickname}/${repo}`}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="btn btn-outline btn-sm"
-                    >
-                      {repo}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      <div className="mt-6 text-center">
+  <button 
+    onClick={toggleRepoList} 
+    className="btn btn-outline btn-info mx-auto block" 
+  >
+    {isRepoListOpen ? 'リポジトリを隠す' : 'リポジトリを表示'}
+  </button>
+  {isRepoListOpen && (
+    <div className="mt-2 text-left">
+      <h3 className="text-xl font-bold mb-2">Repositories</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+        {currentUser.github_repositories.map((repo, index) => (
+          <a 
+            key={index} 
+            href={`https://github.com/${currentUser.nickname}/${repo}`}
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn btn-outline btn-sm w-full" 
+          >
+            {repo}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
         </div>
       </div>
       

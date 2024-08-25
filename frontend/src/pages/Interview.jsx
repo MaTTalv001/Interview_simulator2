@@ -41,6 +41,7 @@ export const Interview = () => {
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [showUpdateMessage, setShowUpdateMessage] = useState(false);
   const [selectedInterviewer, setSelectedInterviewer] = useState(interviewers[0]);
+  const [isFeedbackTextVisible, setIsFeedbackTextVisible] = useState(false);
 
   
 
@@ -307,22 +308,26 @@ export const Interview = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">面接シミュレーション</h1>
+      <h1 className="text-3xl font-bold mb-20">面接練習</h1>
+      
       
       {!interviewMode && (
+        <>
+        <h2 className="text-xl font-semibold mb-10">練習モードを選択してください：</h2>
         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
           <button onClick={() => setInterviewMode('portfolio')} className="btn btn-primary btn-lg w-full sm:w-auto">
-            ポートフォリオを話題に面接を受ける
+            PFを話題に面接を受ける
           </button>
           <button onClick={() => setInterviewMode('general')} className="btn btn-secondary btn-lg w-full sm:w-auto">
-            汎用的な面接を受ける
+            よくある質問で面接を受ける
           </button>
         </div>
+        </>
       )}
 
 {interviewMode && !interviewStarted && (
   <div className="mb-6">
-    <h2 className="text-xl font-semibold mb-4">面接官を選択してください：</h2>
+    <h2 className="text-xl font-semibold mb-4">面接担当者を選択してください：</h2>
     <div className="flex flex-wrap justify-center gap-4">
       {interviewers.map((interviewer) => (
         <div key={interviewer.id} className="w-48 text-center">
@@ -348,6 +353,7 @@ export const Interview = () => {
 
 {interviewMode === 'portfolio' && !interviewStarted && (
         <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">リポジトリのREADMEを解析して質問を生成します</h2>
           <select 
             onChange={(e) => setSelectedRepo(e.target.value)} 
             value={selectedRepo}
@@ -361,9 +367,9 @@ export const Interview = () => {
           <button 
             onClick={startInterviewWithRepo} 
             disabled={!selectedRepo} 
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-4/5 mx-auto block"
           >
-            選択したリポジトリで面接を開始
+            選択したリポジトリで面接を開始する
           </button>
         </div>
       )}
@@ -371,15 +377,15 @@ export const Interview = () => {
 {interviewMode === 'general' && !interviewStarted && (
         <button 
           onClick={startGeneralInterview} 
-          className="btn btn-primary w-full"
+          className="btn btn-primary w-4/5 mx-auto block"
         >
-          汎用的な面接を開始
+          よくある質問で面接を開始する
         </button>
       )}
 
       {isLoading && (
         <div className="text-center">
-          <span className="loading loading-spinner loading-lg"></span>
+          <span className="mt-4 loading loading-spinner loading-lg"></span>
           <p className="mt-4">面接を準備中です...</p>
         </div>
       )}
@@ -387,7 +393,7 @@ export const Interview = () => {
       {isPreparingFeedback && (
         <div className="text-center">
           <span className="loading loading-spinner loading-lg"></span>
-          <p className="mt-4">フィードバックを準備しています...</p>
+          <p className="mt-10">フィードバックを準備しています...</p>
         </div>
       )}
 
@@ -402,7 +408,7 @@ export const Interview = () => {
           {isTextVisible && <p className="mb-4">{interviewText}</p>}
           <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
             <source src={audioSrc} type="audio/mpeg" />
-            Your browser does not support the audio element.
+            ブラウザが音声再生に対応していません。環境を変えてお試しください
           </audio>
           <video 
             ref={videoRef}
@@ -414,31 +420,35 @@ export const Interview = () => {
             className="mb-4"
           >
             <source src="/movie/interview.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
+            ブラウザが動画再生に対応していません。環境を変えてお試しください
           </video>
 
           {isAudioReady && (
-            <div className="mb-4">
-              <button
-                onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
-                className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} w-full`}
-              >
-                {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-                {isPlaying ? '停止' : 'インタビュー再生'}
-              </button>
-            </div>
-          )}
+  <div className="mb-4 flex justify-center">
+    <button
+      onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
+      className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} w-4/5`}
+    >
+      {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
+      {isPlaying ? '停止' : '質問を再生する'}
+    </button>
+  </div>
+)}
+
 
           <div className="space-y-4">
           {!audioBlob && !isSending && (
-  <button
-    onClick={isRecording ? stopRecording : startRecording}
-    className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-accent'} w-full`}
-  >
-    <FaMicrophone className="mr-2" />
-    {isRecording ? '録音を停止' : 'マイクで回答する'}
-  </button>
+  <div className="mb-4 flex justify-center">
+    <button
+      onClick={isRecording ? stopRecording : startRecording}
+      className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-accent'} w-4/5`}
+    >
+      <FaMicrophone className="mr-2" />
+      {isRecording ? '録音を停止' : 'マイクで回答する'}
+    </button>
+  </div>
 )}
+
 {audioBlob && !isSending && (
   <div className="flex space-x-4">
     <button
@@ -460,7 +470,7 @@ export const Interview = () => {
             {isSending && (
               <div className="text-center">
                 <span className="loading loading-spinner loading-lg"></span>
-                <p className="mt-2">あなたの回答を送信しています...</p>
+                <p className="mt-4">あなたの回答を送信しています...</p>
               </div>
             )}
           </div>
@@ -474,8 +484,8 @@ export const Interview = () => {
             </div>
           )}
 
-          <div className="mt-6">
-            <button onClick={endInterview} className="btn btn-warning w-full">
+          <div className="mt-4">
+            <button onClick={endInterview} className="btn btn-warning w-4/5 mx-auto block">
               面接を終える
             </button>
           </div>
@@ -489,45 +499,50 @@ export const Interview = () => {
         </div>
       )}
 
-    {isInterviewEnded && (
-      <div className="mt-6">
-        <h2 className="text-2xl font-bold mb-4">面接フィードバック:</h2>
-        <p>{feedbackText}</p>
-        <audio 
-          ref={audioRef} 
-          style={{display: 'none'}}
-          onCanPlayThrough={() => setIsFeedbackReady(true)}
-        >
-          <source src={feedbackAudio} type="audio/mpeg" />
-          Your browser does not support the audio element.
-        </audio>
-        <video 
-          ref={videoRef}
-          width="640"
-          height="360"
-          muted
-          playsInline
-          className="w-full mt-4"
-        >
-          <source src="/movie/interview.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        
-        {isAudioReady && (
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
-              className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} flex items-center w-full`}
-            >
-              {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-              {isPlaying ? '停止' : 'フィードバックを再生'}
+{isInterviewEnded && (
+        <div className="mt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">面接フィードバック:</h2>
+            <button onClick={() => setIsFeedbackTextVisible(!isFeedbackTextVisible)} className="btn btn-ghost">
+              {isFeedbackTextVisible ? <FaToggleOn /> : <FaToggleOff />} テキストを表示
             </button>
           </div>
-        )}
-      </div>
-    )}
-  </div>
-);
+          {isFeedbackTextVisible && <p className="mb-4">{feedbackText}</p>}
+          <audio 
+            ref={audioRef} 
+            style={{display: 'none'}}
+            onCanPlayThrough={() => setIsFeedbackReady(true)}
+          >
+            <source src={feedbackAudio} type="audio/mpeg" />
+            ブラウザが音声再生に対応していません。環境を変えてお試しください
+          </audio>
+          <video 
+            ref={videoRef}
+            width="640"
+            height="360"
+            muted
+            playsInline
+            className="w-full mt-4"
+          >
+            <source src={selectedInterviewer.video} type="video/mp4" />
+            ブラウザが動画再生に対応していません。環境を変えてお試しください
+          </video>
+          
+          {isAudioReady && (
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
+                className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} flex items-center w-4/5 mx-auto block`}
+              >
+                {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
+                {isPlaying ? '停止' : 'フィードバックを再生'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Interview;
