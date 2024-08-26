@@ -23,6 +23,10 @@ class ApplicationController < ActionController::API
         end
     end
 
+  def current_user
+    @current_user
+  end
+
     def fetch_github_repositories
         github_service = GithubService.new
         @github_repositories = github_service.recently_updated_repositories(@current_user.nickname)

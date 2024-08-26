@@ -1,7 +1,7 @@
 import React from 'react';
 
 const AvatarModal = ({ isOpen, onClose, avatars, onSelect }) => {
-  if (!isOpen) return null;
+    if (!isOpen) return null;
 
   return (
     <div className="modal modal-open">

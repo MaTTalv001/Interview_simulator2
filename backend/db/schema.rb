@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_25_025559) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_26_134846) do
   create_table "avatars", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "avatar_url", null: false
     t.datetime "created_at", null: false
@@ -22,6 +22,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_25_025559) do
     t.text "comment", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "experience"
+    t.string "category"
+    t.string "style"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
@@ -93,6 +96,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_25_025559) do
   add_foreign_key "user_authentications", "users"
   add_foreign_key "users", "avatars"
   add_foreign_key "users", "experiences"
-  add_foreign_key "users_comments", "comments"
+  add_foreign_key "users_comments", "comments", on_delete: :cascade
   add_foreign_key "users_comments", "users"
 end

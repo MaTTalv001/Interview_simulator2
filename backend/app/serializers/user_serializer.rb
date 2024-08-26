@@ -9,6 +9,7 @@ class UserSerializer < ActiveModel::Serializer
     object.experience ? { id: object.experience.id, experience: object.experience.experience } : nil
   end
 
+
   def github_repositories
     @instance_options[:github_repositories]
   end

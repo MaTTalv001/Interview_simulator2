@@ -16,5 +16,9 @@ export const RoutePath = {
       path: "/Logs",
       name: "面接記録",
     },
+    Sharings: {
+      path: "/Sharings",
+      name: "情報共有",
+    },
   };
   

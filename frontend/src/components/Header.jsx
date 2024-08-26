@@ -7,7 +7,7 @@ export const Header = React.memo(() => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [currentTheme, setCurrentTheme] = useState('autumn');
-  const themes = ["light", "dark", "R","cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter"];
+  const themes = ["light", "dark", "R","cupcake", "emerald", "synthwave", "retro", "valentine",  "luxury", "dracula", "autumn", "business",  "coffee", "winter"];
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');

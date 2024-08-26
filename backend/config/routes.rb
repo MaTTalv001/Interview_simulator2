@@ -14,6 +14,12 @@ Rails.application.routes.draw do
       post 'text_to_speech/generate', to: 'text_to_speech#generate'
       post 'speech_to_text', to: 'speech_to_text#transcribe'
       post 'interview/end', to: 'interview#end_interview'
+
+      resources :comments, only: [:index, :create, :destroy] do
+        member do
+          post 'like'
+        end
+      end
       
       resources :users, only: [] do
         collection do

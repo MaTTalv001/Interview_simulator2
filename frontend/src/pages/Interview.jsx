@@ -353,17 +353,17 @@ export const Interview = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">面接練習</h1>
-        <Link to={`/MyPage`} className="btn btn-ghost">
+  <div className="container mx-auto p-4 max-w-3xl">
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-3xl font-bold">面接練習</h1>
+      <Link to={`/MyPage`} className="btn btn-ghost">
         マイページへ
-        </Link>
+      </Link>
     </div>
       
       
-      {!interviewMode && (
-        <>
+    {!interviewMode && (
+      <>
         <h2 className="text-xl font-semibold mb-10">練習モードを選択してください：</h2>
         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
           <button onClick={() => setInterviewMode('portfolio')} className="btn btn-primary btn-lg w-full sm:w-auto">
@@ -373,175 +373,175 @@ export const Interview = () => {
             よくある質問で面接を受ける
           </button>
         </div>
-        </>
-      )}
+      </>
+    )}
 
-{interviewMode && !interviewStarted && (
-  <div className="mb-6">
-    <h2 className="text-xl font-semibold mb-4">面接担当者を選択してください：</h2>
-    <div className="flex flex-wrap justify-center gap-4">
-      {interviewers.map((interviewer) => (
-        <div key={interviewer.id} className="w-48 text-center">
-          <img 
-            src={interviewer.thumbnail} 
-            alt={interviewer.name} 
-            className="w-full h-48 object-cover mb-2 rounded"
-          />
-          <p className="font-medium">{interviewer.name}</p>
-          <input 
-            type="radio" 
-            name="interviewer" 
-            value={interviewer.id} 
-            checked={selectedInterviewer.id === interviewer.id}
-            onChange={() => setSelectedInterviewer(interviewer)}
-            className="radio radio-primary mt-2"
-          />
-        </div>
-      ))}
+    {interviewMode && !interviewStarted && (
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold mb-4">面接担当者を選択してください：</h2>
+      <div className="flex flex-wrap justify-center gap-4">
+        {interviewers.map((interviewer) => (
+          <div key={interviewer.id} className="w-48 text-center">
+            <img 
+              src={interviewer.thumbnail} 
+              alt={interviewer.name} 
+              className="w-full h-48 object-cover mb-2 rounded"
+            />
+            <p className="font-medium">{interviewer.name}</p>
+            <input 
+              type="radio" 
+              name="interviewer" 
+              value={interviewer.id} 
+              checked={selectedInterviewer.id === interviewer.id}
+              onChange={() => setSelectedInterviewer(interviewer)}
+              className="radio radio-primary mt-2"
+            />
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-)}
+    )}
 
-{interviewMode === 'portfolio' && !interviewStarted && (
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">リポジトリのREADMEを解析して質問を生成します</h2>
-          <select 
-            onChange={(e) => setSelectedRepo(e.target.value)} 
-            value={selectedRepo}
-            className="select select-bordered w-full mb-4"
+    {interviewMode === 'portfolio' && !interviewStarted && (
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">リポジトリのREADMEを解析して質問を生成します</h2>
+        <select 
+          onChange={(e) => setSelectedRepo(e.target.value)} 
+          value={selectedRepo}
+          className="select select-bordered w-full mb-4"
+        >
+        <option value="">リポジトリを選択</option>
+        {currentUser.github_repositories && currentUser.github_repositories.map((repoName, index) => (
+          <option key={index} value={repoName}>{repoName}</option>
+          ))}
+        </select>
+        <button 
+          onClick={startInterviewWithRepo} 
+          disabled={!selectedRepo} 
+          className="btn btn-primary w-4/5 mx-auto block"
+        >
+          選択したリポジトリで面接を開始する
+        </button>
+      </div>
+    )}
+
+    {interviewMode === 'general' && !interviewStarted && (
+      <button 
+        onClick={startGeneralInterview} 
+        className="btn btn-primary w-4/5 mx-auto block"
+      >
+        よくある質問で面接を開始する
+      </button>
+    )}
+
+    {isLoading && (
+      <div className="text-center">
+        <span className="mt-4 loading loading-spinner loading-lg"></span>
+        <p className="mt-4">面接を準備中です...</p>
+      </div>
+    )}
+
+    {isPreparingFeedback && (
+      <div className="text-center">
+        <span className="loading loading-spinner loading-lg"></span>
+        <p className="mt-10">フィードバックを準備しています...</p>
+      </div>
+    )}
+
+    {interviewStarted && !isInterviewEnded && (
+      <div className="mt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">面接質問:</h2>
+          <button onClick={() => setIsTextVisible(!isTextVisible)} className="btn btn-ghost">
+            {isTextVisible ? <FaToggleOn /> : <FaToggleOff />} テキストを表示
+          </button>
+        </div>
+        {isTextVisible && <p className="mb-4">{interviewText}</p>}
+        <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
+          <source src={audioSrc} type="audio/mpeg" />
+            ブラウザが音声再生に対応していません。環境を変えてお試しください
+        </audio>
+        <video 
+          ref={videoRef}
+          width="100%"
+          height="auto"
+          muted
+          playsInline
+          loop
+          className="mb-4"
+        >
+          <source src="/movie/interview.mp4" type="video/mp4" />
+            ブラウザが動画再生に対応していません。環境を変えてお試しください
+        </video>
+
+      {isAudioReady && (
+        <div className="mb-4 flex justify-center">
+          <button
+            onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
+            className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} w-4/5`}
           >
-            <option value="">リポジトリを選択</option>
-            {currentUser.github_repositories && currentUser.github_repositories.map((repoName, index) => (
-              <option key={index} value={repoName}>{repoName}</option>
-            ))}
-          </select>
-          <button 
-            onClick={startInterviewWithRepo} 
-            disabled={!selectedRepo} 
-            className="btn btn-primary w-4/5 mx-auto block"
-          >
-            選択したリポジトリで面接を開始する
+            {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
+            {isPlaying ? '停止' : '質問を再生する'}
           </button>
         </div>
       )}
 
-{interviewMode === 'general' && !interviewStarted && (
-        <button 
-          onClick={startGeneralInterview} 
-          className="btn btn-primary w-4/5 mx-auto block"
-        >
-          よくある質問で面接を開始する
-        </button>
-      )}
 
-      {isLoading && (
-        <div className="text-center">
-          <span className="mt-4 loading loading-spinner loading-lg"></span>
-          <p className="mt-4">面接を準備中です...</p>
+      <div className="space-y-4">
+        {!audioBlob && !isSending && (
+        <div className="mb-4 flex justify-center">
+          <button
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-secondary'} w-4/5`}
+          >
+            <FaMicrophone className="mr-2" />
+            {isRecording ? '録音を停止' : 'マイクで回答する'}
+          </button>
         </div>
-      )}
+        )}
 
-      {isPreparingFeedback && (
+        {audioBlob && !isSending && (
+        <div className="flex space-x-4">
+          <button
+            onClick={isPlaying ? stopPlaying : playRecording}
+            className="btn btn-secondary flex-1"
+          >
+            {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
+            {isPlaying ? '再生を停止' : '録音を確認する'}
+          </button>
+          <button
+            onClick={handleSendAudioToBackend}
+            className="btn btn-secondary flex-1"
+          >
+          <FaPaperPlane className="mr-2" />
+            送信する
+          </button>
+        </div>
+        )}
+        {isSending && (
         <div className="text-center">
           <span className="loading loading-spinner loading-lg"></span>
-          <p className="mt-10">フィードバックを準備しています...</p>
+            <p className="mt-4">あなたの回答を送信しています...</p>
         </div>
+        )}
+      </div>
+
+      <audio ref={audioPlayerRef} style={{ display: 'none' }} />
+
+      {audioBlob && (
+      <div className="mt-4">
+        <p>録音が完了しました。上のボタンから確認または送信できます。</p>
+          {/*<p>録音サイズ: {audioBlob.size} バイト</p>*/}
+      </div>
       )}
 
-{interviewStarted && !isInterviewEnded && (
-        <div className="mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">面接質問:</h2>
-            <button onClick={() => setIsTextVisible(!isTextVisible)} className="btn btn-ghost">
-              {isTextVisible ? <FaToggleOn /> : <FaToggleOff />} テキストを表示
-            </button>
-          </div>
-          {isTextVisible && <p className="mb-4">{interviewText}</p>}
-          <audio ref={audioRef} key={`ai-${audioKey}`} style={{display: 'none'}}>
-            <source src={audioSrc} type="audio/mpeg" />
-            ブラウザが音声再生に対応していません。環境を変えてお試しください
-          </audio>
-          <video 
-            ref={videoRef}
-            width="100%"
-            height="auto"
-            muted
-            playsInline
-            loop
-            className="mb-4"
-          >
-            <source src="/movie/interview.mp4" type="video/mp4" />
-            ブラウザが動画再生に対応していません。環境を変えてお試しください
-          </video>
-
-          {isAudioReady && (
-  <div className="mb-4 flex justify-center">
-    <button
-      onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
-      className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} w-4/5`}
-    >
-      {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-      {isPlaying ? '停止' : '質問を再生する'}
-    </button>
-  </div>
-)}
-
-
-          <div className="space-y-4">
-          {!audioBlob && !isSending && (
-  <div className="mb-4 flex justify-center">
-    <button
-      onClick={isRecording ? stopRecording : startRecording}
-      className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-secondary'} w-4/5`}
-    >
-      <FaMicrophone className="mr-2" />
-      {isRecording ? '録音を停止' : 'マイクで回答する'}
-    </button>
-  </div>
-)}
-
-{audioBlob && !isSending && (
-  <div className="flex space-x-4">
-    <button
-      onClick={isPlaying ? stopPlaying : playRecording}
-      className="btn btn-secondary flex-1"
-    >
-      {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
-      {isPlaying ? '再生を停止' : '録音を確認する'}
-    </button>
-    <button
-      onClick={handleSendAudioToBackend}
-      className="btn btn-secondary flex-1"
-    >
-      <FaPaperPlane className="mr-2" />
-      送信する
-    </button>
-  </div>
-)}
-            {isSending && (
-              <div className="text-center">
-                <span className="loading loading-spinner loading-lg"></span>
-                <p className="mt-4">あなたの回答を送信しています...</p>
-              </div>
-            )}
-          </div>
-
-          <audio ref={audioPlayerRef} style={{ display: 'none' }} />
-
-          {audioBlob && (
-            <div className="mt-4">
-              <p>録音が完了しました。上のボタンから確認または送信できます。</p>
-              {/*<p>録音サイズ: {audioBlob.size} バイト</p>*/}
-            </div>
-          )}
-
-          <div className="mt-4">
-            <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block">
-              面接を終える
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="mt-4">
+        <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block">
+          面接を終える
+        </button>
+      </div>
+    </div>
+    )}
       {showUpdateMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-primary text-white px-6 py-4 rounded-lg shadow-lg animate-bounce">
@@ -550,7 +550,7 @@ export const Interview = () => {
         </div>
       )}
 
-{isInterviewEnded && (
+      {isInterviewEnded && (
         <div className="mt-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">面接フィードバック:</h2>
