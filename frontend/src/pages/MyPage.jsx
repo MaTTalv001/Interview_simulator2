@@ -200,7 +200,7 @@ export const MyPage = () => {
       </div>
       
       {/* リポジトリ表示/非表示セクション */}
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-base-100 ">
         <div className="card-body">
           <button 
             onClick={toggleRepoList} 
