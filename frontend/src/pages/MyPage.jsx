@@ -4,7 +4,8 @@ import AvatarModal from '../components/AvatarModal';
 import { Link } from 'react-router-dom';
 import { API_URL } from "../config/settings";
 import { IconContext } from 'react-icons'
-import { FaGithub } from "react-icons/fa";
+import { FaGithub , FaTwitter} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 export const MyPage = () => {
   const { currentUser, setCurrentUser, token } = useAuth();
@@ -161,8 +162,15 @@ export const MyPage = () => {
     </>);
   }
 
+  const handleTweet = () => {
+    const url = "https://interview-frontend-05a5d7363eca.herokuapp.com/";
+    const tweetText = "AIで面接のイメージトレーニングしよう！ #面接シミュレータR";
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, "_blank");
+  };
+
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
+    <div className="container mx-auto mt-10 p-4 max-w-3xl">
       <div className="card lg:card-side bg-base-100 shadow-xl mb-8">
         <figure onClick={handleAvatarClick} className="cursor-pointer">
           <img 
@@ -196,11 +204,25 @@ export const MyPage = () => {
               情報交換
             </Link> */}
           </div>
+          <div className="card bg-base-100">
+        <div className="card-body text-center">
+          {/* <h3 className="text-md font-bold mb-2">面接シミュレータRをみんなに教える</h3> */}
+          <button 
+            onClick={handleTweet} 
+            className="btn btn-accent btn-md mx-auto flex items-center"
+          >
+            <IconContext.Provider value={{size: '24px', className: 'mr-2'}}>
+              <FaXTwitter />
+            </IconContext.Provider>
+            アプリをシェア
+          </button>
+        </div>
+      </div>
         </div>
       </div>
       
       {/* リポジトリ表示/非表示セクション */}
-      <div className="card bg-base-100 ">
+      {/* <div className="card bg-base-100 ">
         <div className="card-body">
           <button 
             onClick={toggleRepoList} 
@@ -227,7 +249,21 @@ export const MyPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
+
+      {/* <div className="card bg-base-100">
+        <div className="card-body text-center">
+          <button 
+            onClick={handleTweet} 
+            className="btn btn-accent btn-md mx-auto flex items-center"
+          >
+            <IconContext.Provider value={{size: '24px', className: 'mr-2'}}>
+              <FaXTwitter />
+            </IconContext.Provider>
+            アプリをシェア
+          </button>
+        </div>
+      </div> */}
   
       <AvatarModal
         isOpen={isModalOpen}
