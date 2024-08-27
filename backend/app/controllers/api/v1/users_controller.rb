@@ -65,9 +65,9 @@ class Api::V1::UsersController < ApplicationController
     
         render json: { repositories: top_repos_with_readme }
       rescue Octokit::NotFound
-        render json: { error: "GitHub user not found" }, status: :not_found
+        render json: { error: "GitHub ユーザーが見つかりませんでした" }, status: :not_found
       rescue Octokit::Unauthorized
-        render json: { error: "GitHub API authentication failed" }, status: :unauthorized
+        render json: { error: "Github 認証失敗" }, status: :unauthorized
       end
 
 
@@ -80,7 +80,7 @@ class Api::V1::UsersController < ApplicationController
       if @current_user.update(avatar_id: params[:avatar_id])
         render json: @current_user, serializer: UserSerializer
       else
-        render json: { error: 'Failed to update avatar' }, status: :unprocessable_entity
+        render json: { error: 'アバターアップデート失敗' }, status: :unprocessable_entity
       end
     end
 
@@ -88,7 +88,7 @@ class Api::V1::UsersController < ApplicationController
       if @current_user.update(experience_id: params[:experience_id])
         render json: @current_user, serializer: UserSerializer
       else
-        render json: { error: 'Failed to update experience' }, status: :unprocessable_entity
+        render json: { error: '経験アップデート失敗' }, status: :unprocessable_entity
       end
     end
 
@@ -102,7 +102,7 @@ class Api::V1::UsersController < ApplicationController
       github_service = GithubService.new
       @github_repositories = github_service.all_repository_names(@current_user.nickname)
     rescue StandardError => e
-      Rails.logger.error "Error fetching GitHub repositories: #{e.message}"
+      Rails.logger.error "レポジトリ取得失敗: #{e.message}"
       @github_repositories = []
     end
 

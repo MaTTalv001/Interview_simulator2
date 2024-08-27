@@ -45,8 +45,8 @@ export const Interview = () => {
   const [isFeedbackTextVisible, setIsFeedbackTextVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  
-
+  // マイクの許可設定
+  // https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia
   const requestMicrophonePermission = async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -68,6 +68,7 @@ export const Interview = () => {
     }
   }, [isFeedbackReady, feedbackAudio]);
 
+  // ユーザーのレポジトリデータの取得
   const fetchReadme = async (repoName) => {
     try {
       const response = await fetch(`${API_URL}/api/v1/github/readme/${repoName}`, {
@@ -82,30 +83,34 @@ export const Interview = () => {
     }
   };
 
+  // レポジトリを用いた面接の開始
   const startInterviewWithRepo = async () => {
     setIsLoading(true);
     try {
       const readme = await fetchReadme(selectedRepo);
       await startInterview(readme);
     } catch (error) {
-      console.error("Error starting interview with repo:", error);
+      console.error("レポジトリ面接を開始できませんでした:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // よくある面接の開始
   const startGeneralInterview = async () => {
     setIsLoading(true);
     try {
       const randomQuestion = generalQuestions[Math.floor(Math.random() * generalQuestions.length)];
       await startInterview(randomQuestion);
     } catch (error) {
-      console.error("Error starting general interview:", error);
+      console.error("よくある面接を開始できませんでした:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 面接を開始する
+  // プロンプトを文字列化して入力
   const startInterview = async (prompt) => {
     try {
       const response = await fetch(`${API_URL}/api/v1/interview/start`, {
@@ -116,7 +121,7 @@ export const Interview = () => {
         },
         body: JSON.stringify({ readme: prompt })
       });
-      if (!response.ok) throw new Error('Failed to start interview');
+      if (!response.ok) throw new Error('面接開始できませんでした');
       const data = await response.json();
       setInterviewText(data.text);
       setAudioSrc(data.audio);
@@ -124,10 +129,11 @@ export const Interview = () => {
       setInterviewStarted(true);
       setAudioKey(prevKey => prevKey + 1);
     } catch (error) {
-      console.error("Error starting interview:", error);
+      console.error("面接開始できませんでした:", error);
     }
   };
 
+  // 動画と音声の再生をシンクロさせる
   const playAudioWithVideo = () => {
     const videoPlayer = videoRef.current;
     const audioPlayer = audioRef.current;
@@ -140,8 +146,8 @@ export const Interview = () => {
       const playPromise = videoPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(_ => {
-          audioPlayer.play().catch(e => console.error("Error playing audio:", e));
-        }).catch(e => console.error("Error playing video:", e));
+          audioPlayer.play().catch(e => console.error("音声再生失敗しました:", e));
+        }).catch(e => console.error("動画再生失敗しました:", e));
       }
       
       setIsPlaying(true);
@@ -154,11 +160,11 @@ export const Interview = () => {
       videoPlayer.onended = () => {
         if (!audioPlayer.ended) {
           videoPlayer.currentTime = 0;
-          videoPlayer.play().catch(e => console.error("Error replaying video:", e));
+          videoPlayer.play().catch(e => console.error("動画再生失敗しました:", e));
         }
       };
     } else {
-      console.error("Video or audio player is not ready.");
+      console.error("音声と動画の準備が整っていません");
     }
   };
 
@@ -172,6 +178,8 @@ export const Interview = () => {
     }
   };
 
+  // 録音を開始する
+  // https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia
   const startRecording = async () => {
     await requestMicrophonePermission();
     try {
@@ -241,13 +249,13 @@ export const Interview = () => {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-      if (!response.ok) throw new Error('Failed to send audio to backend');
+      if (!response.ok) throw new Error('音声をバックエンドに送信できませんでした');
       const data = await response.json();
       await continueInterview(data.transcription);
       setAudioBlob(null);
       setAudioKey(prevKey => prevKey + 1);
     } catch (error) {
-      console.error("Error sending audio to backend:", error);
+      console.error("音声をバックエンドに送信できませんでした:", error);
     } finally {
       setIsSending(false);
     }
@@ -263,7 +271,7 @@ export const Interview = () => {
         },
         body: JSON.stringify({ messages: messages, user_response: userResponse })
       });
-      if (!response.ok) throw new Error('Failed to continue interview');
+      if (!response.ok) throw new Error('面接が中断されました');
       const data = await response.json();
       setInterviewText(data.text);
       setAudioSrc(data.audio);
@@ -274,7 +282,7 @@ export const Interview = () => {
       setShowUpdateMessage(true);
       setTimeout(() => setShowUpdateMessage(false), 3000); // 3秒後にメッセージを非表示にする
     } catch (error) {
-      console.error("Error continuing interview:", error);
+      console.error("面接が中断されました:", error);
     }
   };
 
@@ -333,12 +341,12 @@ export const Interview = () => {
         })
       });
       
-      if (!response.ok) throw new Error('Failed to save interview log');
+      if (!response.ok) throw new Error('面接ログの保存に失敗しました');
       const data = await response.json();
-      console.log('Interview log saved successfully', data);
+      console.log('面接ログを保存しました', data);
       setIsSaved(true);  // 保存成功時に状態を更新
     } catch (error) {
-      console.error("Error saving interview log:", error);
+      console.error("面接ログの保存に失敗しました:", error);
     }
   };
 
