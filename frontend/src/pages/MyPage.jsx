@@ -192,9 +192,9 @@ export const MyPage = () => {
             <Link to="/Logs" className="btn btn-lg btn-primary">
               練習ログ
             </Link>
-            <Link to="/Sharings" className="btn btn-lg btn-primary">
+            {/* <Link to="/Sharings" className="btn btn-lg btn-primary">
               情報交換
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
