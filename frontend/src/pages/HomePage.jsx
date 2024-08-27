@@ -36,7 +36,7 @@ export const HomePage = () => {
           <img src="/title.jpg" alt="面接シミュレータR" className="max-w-sm mx-auto mb-8 rounded-lg shadow-2xl" />
           <h1 className="text-5xl font-bold mb-8">面接シミュレータR</h1>
           <p className="text-xl mb-8">
-            AIを活用した面接練習アプリ。あなたのキャリアアップをサポートします。
+            AIを活用した面接練習アプリ
           </p>
           <button
             className="btn btn-primary btn-lg"
