@@ -7,6 +7,8 @@ import { MyPage } from "../pages/MyPage";
 import { Interview } from "../pages/Interview";
 import { Sharings} from "../pages/Sharings";
 import { Logs } from "../pages/Logs";
+import { PrivacyPolicy } from "../pages/PrivacyPolicy";
+import { TermsOfService } from "../pages/TermsOfService";
 
 const App = () => {
   return (
@@ -42,5 +44,15 @@ export const PROTECTED_ROUTES = [
     path: RoutePath.Sharings.path,
     element: <App />,
     children: [{ path: RoutePath.Sharings.path, element: <Sharings /> }],
+  },
+  {
+    path: RoutePath.PrivacyPolicy.path,
+    element: <App />,
+    children: [{ path: RoutePath.PrivacyPolicy.path, element: <PrivacyPolicy /> }],
+  },
+  {
+    path: RoutePath.TermsOfService.path,
+    element: <App />,
+    children: [{ path: RoutePath.TermsOfService.path, element: <TermsOfService /> }],
   }
 ];

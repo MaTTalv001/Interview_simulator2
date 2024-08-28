@@ -64,6 +64,22 @@ export const Header = React.memo(() => {
                   マイページ
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/TermsOfService"
+                  className={`btn btn-ghost normal-case text-xl `}
+                >
+                  利用規約
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/PrivacyPolicy"
+                  className={`btn btn-ghost normal-case text-sm `}
+                >
+                  プライバシーポリシー
+                </Link>
+              </li>
               {currentUser && (
                 <>
                   <li>
