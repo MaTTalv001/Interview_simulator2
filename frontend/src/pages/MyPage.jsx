@@ -164,7 +164,7 @@ export const MyPage = () => {
 
   const handleTweet = () => {
     const url = "https://interview-frontend-05a5d7363eca.herokuapp.com/";
-    const tweetText = "AIで面接のイメージトレーニングしよう！ #面接シミュレータR";
+    const tweetText = "AIで面接のイメージトレーニングしよう！ #面接シミュレータR #RUNTEQ #RUNTEQ祭";
     const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, "_blank");
   };
