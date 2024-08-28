@@ -545,7 +545,7 @@ export const Interview = () => {
 
       <div className="mt-4">
         <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block">
-          面接を終える
+          フィードバックをもらう
         </button>
       </div>
     </div>
