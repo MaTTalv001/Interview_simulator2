@@ -117,7 +117,10 @@ rails db:create
 rails db:migrate
 rails db:seed
 ```
+5. CI/CD設定（不要ならディレクトリごと削除）:
 
+- `.github`以下にGithub Actions設定
+- テンプレートはheroku用
 
-4. プレビュー
+6. プレビュー
 `localhost:8000`
