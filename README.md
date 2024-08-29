@@ -1,5 +1,17 @@
 # Interview Simulator2
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Rails-D30001?logo=rubyonrails&style=flat">
+  <img src="https://img.shields.io/badge/React-555?logo=react&style=popout">
+  <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwind-css&style=flat">
+  <img src="https://img.shields.io/badge/DaisyUI-5A0EF8?logo=daisyui&style=flat">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&style=flat">
+  <img src="https://img.shields.io/badge/Heroku-430098?logo=heroku&style=flat">
+  <img src="https://img.shields.io/badge/Docker-555?logo=docker&style=popout">
+  <img src="https://img.shields.io/badge/GitHub-181717?logo=github&style=popout">
+  <img src="https://img.shields.io/badge/OpenAI-412991?logo=openai&style=flat">
+</p>
+
 ## 概要
 
 Interview Simulator 2 は、エンジニア面接に向けた包括的な準備を支援するAI駆動型アプリケーションです。
