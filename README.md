@@ -1,57 +1,80 @@
 # Interview Simulator2
 
 ## 概要
-エンジニア面接に向けた支援を行うアプリ
 
-1. 目的と対象ユーザー
-   - アプリの主な目的は何か
-      - エンジニアの面接準備を支援
-   - ターゲットユーザーは誰か
-      - 未経験エンジニア
-      - 転職希望のジュニアエンジニア
+Interview Simulator 2 は、エンジニア面接に向けた包括的な準備を支援するAI駆動型アプリケーションです。
+リアルな面接環境をシミュレートし、パーソナライズされたフィードバックを提供することで、未経験エンジニアや転職を考えているジュニアエンジニアの皆様の面接スキル向上をサポートします。
 
-2. 機能要件
-   - 核となる機能は何か
-      - AIによる音声ベースの面接シミュレーション
-      - GitHubレポジトリ分析によるパーソナライズド面接      
-      - 面接の文字起こし
-      - AIによる面接評価とフィードバック
-      - 履歴管理
-      - コミュニティ機能（他のユーザーとの経験共有）
-   - ユーザーが求める可能性のある機能
-      - 複数の面接官キャラクター（技術系、HR系、経営者系など）
-      - 難易度設定（新卒、ジュニア、シニアなど）
-      - 面接テクニックや一般的な質問への回答のヒント集
+## 目的と対象ユーザー
 
-3. 技術スタック
-   - フロントエンド
-      - React.js
-      - TypeScript
-      - Tailwind CSS, DaisyUI
-   - バックエンド
-      - Python with FastAPI
-   - データベース
-      - MySQL（ユーザーデータ、面接履歴）
-   - AI/ML
-      - OpenAI API（GPT-4o、TTS）
-   - インフラ
-      - ?
-      - Docker
-   - CI/CD
-      - GitHubActions
-   - モニタリング
-      Google Analytics
+### 主な目的
+- エンジニア面接の準備を効果的に支援
+- リアルな面接体験を通じて自信を構築
+- 個別化されたフィードバックによるスキル向上
 
-4. UI/UXデザイン
-   - ユーザビリティとアクセシビリティ
-   - レスポンシブデザイン
+### ターゲットユーザー
+- 未経験エンジニア
+- 転職を希望するジュニアエンジニア
+- テクニカルインタビューの練習を求める学生
 
-5. データ管理
-   - データ構造の設計
+## 主要機能
 
-6. デプロイメント
-    - ホスティング環境の選定
-    - インフラストラクチャの設計
+### 1. AIによる音声ベースの面接シミュレーション
+- リアルな面接官との対話を再現
+- 動的な質問生成で、自然な会話の流れを実現
+
+### 2. GitHubレポジトリ分析によるパーソナライズド面接
+- ユーザーのGitHubプロフィールを分析し、カスタマイズされた質問を生成
+
+### 3. 面接の文字起こしと分析
+- 面接内容を自動的にテキスト化
+
+### 4. AIによる面接評価とフィードバック
+- 回答の質、デリバリー、技術的正確性などを評価
+- 改善点や強みを詳細にフィードバック
+
+### 5. 履歴管理
+- 過去の面接シミュレーションを保存・閲覧可能
+- 成長の軌跡を可視化
+
+### 追加予定
+- 複数の面接担当者アバター
+- 難易度設定（新卒、ジュニア、シニアなど）
+- 面接テクニックや一般的な質問へのヒント集
+
+### 実装を取りやめたこと
+- 面接体験談投稿などのSNS機能（個人情報や個別企業に関する投稿にコンプライアンスリスクがあるため）
+
+## 技術スタック
+
+### フロントエンド
+- React.js
+- Tailwind CSS, DaisyUI
+
+### バックエンド
+- Ruby on Rails
+
+### データベース
+- MySQL（ユーザーデータ、面接履歴）
+
+### AI/ML
+- OpenAI API (GPT-4o-mini, Text to Speech, Speech to Text)
+
+### インフラ
+- Docker
+- Heroku
+
+### CI/CD
+- GitHub Actions
+
+### モニタリング
+- Google Analytics
+
+## 特徴
+
+- **マルチモーダルAI**: テキスト、音声、動画を組み合わせた没入型体験
+- **リアルタイムフィードバック**: 面接中の回答に対するリアルタイム評価
+- **データ駆動型改善**: ユーザーの成長を追跡し、パーソナライズされた学習パスを提供
 
 
 ## 画面遷移図
@@ -60,3 +83,41 @@ https://www.figma.com/design/YuKTnRlGQcBJ6kirSLq0jt/interviewSimulator2?node-id=
 ## ER図
 https://app.diagrams.net/#HMaTTalv001%2FInterview_simulator2%2Fmain%2Finterview_simulator2.drawio#%7B%22pageId%22%3A%228JCcPIpRCuSTkeoywtW6%22%7D
 
+## for Developers
+### インストールと使用方法
+
+1. リポジトリをクローン:
+git clone https://github.com/MaTTalv001/Interview_simulator2.git
+
+2. `.env.local`に環境変数を設定
+
+```
+GITHUB_KEY=xxxxxxxxxxxxxx(Github OAuth Apps)
+GITHUB_SECRET=xxxxxxxxxxxxx(Github OAuth Apps)
+JWT_SECRET_KEY=xxxxxxxxxxxxx(任意のもの)
+GITHUB_ACCESS_TOKEN=xxxxxxxxxxxxx(Github Personal access tokens)
+REACT_APP_API_URL=http://localhost:8000
+FRONT_URL=http://localhost:8000
+OPENAI_API=xxxxxxxxxxxxx
+```
+
+3. ビルドと立ち上げ:
+```
+docker compose build
+```
+```
+docker compose up
+```
+4. データベース構築:
+```
+docker compoe exec back bash
+```
+```
+rails db:create
+rails db:migrate
+rails db:seed
+```
+
+
+4. プレビュー
+`localhost:8000`
