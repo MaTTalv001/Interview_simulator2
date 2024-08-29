@@ -483,7 +483,7 @@ export const Interview = () => {
         </video>
 
       {isAudioReady && (
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 flex justify-center tooltip" data-tip="面接担当者の音声・動画">
           <button
             onClick={isPlaying ? pauseAudioAndVideo : playAudioWithVideo}
             className={`btn ${isPlaying ? 'btn-error btn-outline' : 'btn-primary'} w-4/5`}
@@ -491,13 +491,13 @@ export const Interview = () => {
             {isPlaying ? <FaStop className="mr-2" /> : <FaPlay className="mr-2" />}
             {isPlaying ? '停止' : '質問を再生する'}
           </button>
-        </div>
+          </div>
       )}
 
 
       <div className="space-y-4">
         {!audioBlob && !isSending && (
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 flex justify-center tooltip" data-tip="あなたの回答を収録">
           <button
             onClick={isRecording ? stopRecording : startRecording}
             className={`btn ${isRecording ? 'btn-error btn-outline' : 'btn-secondary'} w-4/5`}
@@ -544,7 +544,7 @@ export const Interview = () => {
       )}
 
       <div className="mt-4">
-        <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block">
+        <button onClick={endInterview} className="btn btn-accent w-4/5 mx-auto block tooltip" data-tip="面接を終えてフィードバックを生成" >
           フィードバックをもらう
         </button>
       </div>
@@ -602,7 +602,9 @@ export const Interview = () => {
           {!isSaved ? (
             <button
               onClick={saveInterview}
-              className="btn btn-accent w-4/5 mx-auto block"
+              className="btn btn-accent w-4/5 mx-auto block tooltip"
+              data-tip="面接記録で閲覧可能になります"
+
             >
               面接記録を保存する
             </button>
