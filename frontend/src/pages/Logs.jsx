@@ -68,7 +68,10 @@ return (
                                 <p className="bg-gray-100 p-4 rounded">{selectedLog.feedback}</p>
                                 </div>
                                 ) : (
-                                <p>左側のリストから面接ログを選択してください。</p>
+                                    <>
+                                <p>リストから面接ログを選択してください。</p>
+                                <p>面接練習でフィードバックまで進んだものが表示されます。</p>
+                                </>
                                 )}
                         </div>
                 </div>
