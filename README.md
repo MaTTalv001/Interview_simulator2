@@ -1,4 +1,4 @@
-# Interview Simulator2
+# Interview Simulator R
 
 <p align="left">
   <img src="https://img.shields.io/badge/Rails-D30001?logo=rubyonrails&style=flat">
@@ -11,6 +11,7 @@
   <img src="https://img.shields.io/badge/GitHub-181717?logo=github&style=popout">
   <img src="https://img.shields.io/badge/OpenAI-412991?logo=openai&style=flat">
 </p>
+![Interview Simulator R](https://github.com/user-attachments/assets/e4368579-337a-4dc4-b98b-21e70f934bc1)
 
 ## 概要
 
