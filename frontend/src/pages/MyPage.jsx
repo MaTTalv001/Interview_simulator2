@@ -15,17 +15,16 @@ export const MyPage = () => {
   const [experiences, setExperiences] = useState([]);
   const [isRepoListOpen, setIsRepoListOpen] = useState(false);
 
-
   useEffect(() => {
-    if (currentUser !== undefined) {
+    if (currentUser !== undefined && token) {
       setIsLoading(false);
       fetchAvatars();
       fetchExperiences();
-      console.log(currentUser);
     }
-  }, [currentUser]);
+  }, [currentUser, token]);
 
   const fetchAvatars = async () => {
+    if (!token) return;
     try {
       const response = await fetch(`${API_URL}/api/v1/users/avatars`, {
         headers: {
@@ -43,12 +42,9 @@ export const MyPage = () => {
       console.error('アバター情報の取得に失敗しました', error);
     }
   };
-
-  useEffect(() => {
-    fetchExperiences();
-  }, []);
   
   const fetchExperiences = async () => {
+    if (!token) return;
     try {
       const response = await fetch(`${API_URL}/api/v1/experiences`, {
         headers: {
@@ -57,16 +53,15 @@ export const MyPage = () => {
       });
   
       if (!response.ok) {
-        throw new Error('アバター情報の取得に失敗しました');
+        throw new Error('経験情報の取得に失敗しました');
       }
   
       const data = await response.json();
       setExperiences(data);
     } catch (error) {
-      console.error('アバター情報の取得に失敗しました', error);
+      console.error('経験情報の取得に失敗しました', error);
     }
   };
-
 
   const handleAvatarClick = () => {
     setIsModalOpen(true);
@@ -111,7 +106,7 @@ export const MyPage = () => {
       });
   
       if (!response.ok) {
-        throw new Error('経験情報の取得に失敗しました');
+        throw new Error('経験情報の更新に失敗しました');
       }
   
       const updatedUser = await response.json();
@@ -123,22 +118,6 @@ export const MyPage = () => {
       console.error('経験情報の更新に失敗しました', error);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <span className="loading loading-bars loading-lg"></span>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <span className="loading loading-bars loading-lg"></span>
-      </div>
-    );
-  }
 
   const toggleRepoList = () => {
     setIsRepoListOpen(!isRepoListOpen);
@@ -155,10 +134,10 @@ export const MyPage = () => {
   if (!currentUser) {
     return (
     <>
-    <div className="text-center">
-          <span className="mt-4 loading loading-spinner loading-lg"></span>
-          <p className="mt-4">Now Loading...</p>
-        </div>
+      <div className="text-center">
+        <span className="mt-4 loading loading-spinner loading-lg"></span>
+        <p className="mt-4">Now Loading...</p>
+      </div>
     </>);
   }
 
